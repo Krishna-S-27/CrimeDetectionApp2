@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Professional Indigo & Slate Palette (Light) -->
+    <color name="colorPrimary">#4F46E5</color> <!-- Indigo 600 -->
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorPrimaryContainer">#EEF2FF</color> <!-- Indigo 50 -->
+    <color name="colorOnPrimaryContainer">#3730A3</color>
+
+    <color name="colorSecondary">#0F172A</color> <!-- Slate 900 -->
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorSecondaryContainer">#F1F5F9</color> <!-- Slate 100 -->
+    <color name="colorOnSecondaryContainer">#1E293B</color>
+
+    <color name="colorTertiary">#0EA5E9</color> <!-- Sky 500 -->
+    <color name="colorOnTertiary">#FFFFFF</color>
+
+    <color name="colorError">#EF4444</color> <!-- Red 500 -->
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorErrorContainer">#FEF2F2</color>
+    <color name="colorOnErrorContainer">#991B1B</color>
+
+    <color name="colorBackground">#F8FAFC</color> <!-- Slate 50 -->
+    <color name="colorOnBackground">#0F172A</color>
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorOnSurface">#0F172A</color>
+    <color name="colorSurfaceVariant">#F1F5F9</color>
+    <color name="colorOnSurfaceVariant">#475569</color>
+    <color name="colorOutline">#E2E8F0</color>
+
+    <color name="crime_safe">#10B981</color> <!-- Emerald 500 -->
+    <color name="glass_black">#CC000000</color>
+
+    <color name="bottom_nav_inactive">#94A3B8</color>
+</resources>
