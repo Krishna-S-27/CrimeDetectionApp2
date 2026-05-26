@@ -6,7 +6,15 @@
         android:title="Stealth Mode"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_server_settings"
+        android:title="Server Settings"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+        android:title="Notification Settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_generate_report"
+        android:title="Generate Report"
         app:showAsAction="never" />
 </menu>

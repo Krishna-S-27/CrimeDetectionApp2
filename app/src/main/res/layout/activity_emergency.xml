@@ -97,6 +97,22 @@
                         app:cornerRadius="16dp"
                         app:icon="@android:drawable/ic_menu_call"
                         app:iconSize="20dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnShareWhatsApp"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/btn_share_whatsapp"
+                        android:textColor="#25D366"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/ic_whatsapp"
+                        app:iconSize="20dp"
+                        app:iconTint="#25D366"
+                        app:strokeColor="#25D366" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

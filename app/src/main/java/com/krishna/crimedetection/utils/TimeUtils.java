@@ -8,6 +8,10 @@ public final class TimeUtils {
     private TimeUtils() {}
 
     public static String getCurrentTimestamp() {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date());
+        return formatTimestamp(System.currentTimeMillis());
+    }
+
+    public static String formatTimestamp(long timestamp) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date(timestamp));
     }
 }

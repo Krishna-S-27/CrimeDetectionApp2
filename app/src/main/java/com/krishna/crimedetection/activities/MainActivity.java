@@ -10,10 +10,14 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.transition.TransitionManager;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,7 +34,8 @@ import androidx.camera.video.VideoRecordEvent;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -40,13 +45,27 @@ import com.krishna.crimedetection.databinding.ActivityMainBinding;
 import com.krishna.crimedetection.models.AppDatabase;
 import com.krishna.crimedetection.models.CrimeRecord;
 import com.krishna.crimedetection.services.RecordingForegroundService;
-import com.krishna.crimedetection.utils.NotificationUtils;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.krishna.crimedetection.utils.NotificationHandler;
+import com.krishna.crimedetection.utils.NotificationPreferences;
 import com.krishna.crimedetection.utils.PreferenceUtils;
 import com.krishna.crimedetection.utils.TimeUtils;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.activity.result.ActivityResult;
+import com.krishna.crimedetection.network.models.IncidentListResponse;
+import com.krishna.crimedetection.network.models.IncidentResponse;
+import com.krishna.crimedetection.network.models.StatisticsResponse;
 import com.krishna.crimedetection.network.PredictionResponse;
+import com.krishna.crimedetection.utils.NotificationUtils;
+import java.util.List;
+import com.krishna.crimedetection.network.ApiService;
+import com.krishna.crimedetection.network.RetrofitClient;
+import com.krishna.crimedetection.utils.TokenManager;
+import com.krishna.crimedetection.auth.LoginActivity;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import com.krishna.crimedetection.viewmodel.CrimeViewModel;
 import com.krishna.crimedetection.viewmodel.CrimeViewModelFactory;
 
@@ -54,17 +73,7 @@ import java.io.File;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
-/**
- * Main Activity for Crime/Violence Detection Application
- *
- * Features:
- * - Live camera recording via CameraX
- * - Video upload from gallery
- * - Violence detection via FastAPI backend
- * - Result history in Room database
- * - Real-time UI updates with LiveData
- * - Server connectivity monitoring
- */
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_PERMISSIONS = 1001;
@@ -105,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
+    private TokenManager tokenManager;
+
     // ===================== LIFECYCLE METHODS =====================
 
     @Override
@@ -112,8 +123,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Check if user is logged in
-        if (!PreferenceUtils.isLoggedIn(this)) {
-            startActivity(new Intent(this, com.krishna.crimedetection.auth.LoginActivity.class));
+        tokenManager = new TokenManager(this);
+        if (!tokenManager.isLoggedIn()) {
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
@@ -146,11 +158,156 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Setup button click listeners
+        binding.btnLogout.setOnClickListener(v -> {
+            tokenManager.logout();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        });
+
+        binding.btnQuickRealtime.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RealtimeActivity.class)));
+
+        binding.btnQuickUpload.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, EmergencyContactsActivity.class)));
+
+        binding.btnQuickHistory.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, IncidentHistoryActivity.class)));
+
         binding.fabAction.setOnClickListener(v -> toggleRecording());
         binding.btnUploadMedia.setOnClickListener(v -> openVideoPicker());
 
+        // Display user greeting
+        binding.tvGreeting.setText(getString(R.string.greeting_format, tokenManager.getUsername()));
+
+        // Initialize Push Notifications
+        initPushNotifications();
+
         // Display last result on app startup
         updateLastResultUI();
+        
+        fetchStatistics();
+    }
+
+    private void initPushNotifications() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            NotificationHandler.requestNotificationPermission(this);
+        }
+
+        try {
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    Log.w("MainActivity", "Fetching FCM registration token failed", task.getException());
+                    return;
+                }
+
+                // Get new FCM registration token
+                String token = task.getResult();
+                Log.d("MainActivity", "FCM Token: " + token);
+
+                // Save and sync with backend
+                NotificationPreferences prefs = new NotificationPreferences(this);
+                String savedToken = prefs.getFcmToken();
+
+                if (token != null && !token.equals(savedToken)) {
+                    prefs.setFcmToken(token);
+                    NotificationHandler.sendFcmTokenToBackend(this, token);
+                }
+            });
+        } catch (IllegalStateException e) {
+            Log.e("MainActivity", "Firebase not initialized. Push notifications will be disabled. " + e.getMessage());
+        }
+    }
+
+    private void fetchStatistics() {
+        ApiService apiService = RetrofitClient.getApiService(this);
+        apiService.getStatistics().enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<StatisticsResponse> call, @NonNull Response<StatisticsResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    StatisticsResponse stats = response.body();
+                    binding.tvTotalIncidents.setText(String.valueOf(stats.getTotalIncidents()));
+                    binding.tvViolentCount.setText(String.valueOf(stats.getViolentCount()));
+                    binding.tvConfidenceRate.setText(getString(R.string.stat_percent_of_total_format, stats.getAvgConfidence() * 100));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<StatisticsResponse> call, @NonNull Throwable t) {
+                Log.e("MainActivity", "Failed to fetch stats", t);
+            }
+        });
+
+        // Also fetch recent incidents
+        fetchRecentIncidents(apiService);
+    }
+
+    private void fetchRecentIncidents(ApiService apiService) {
+        apiService.getIncidents(0, 5, null, null, null, null, "timestamp DESC").enqueue(new Callback<>() {
+            @Override
+            public void onResponse(@NonNull Call<IncidentListResponse> call, @NonNull Response<IncidentListResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<IncidentResponse> incidents = response.body().getIncidents();
+                    if (incidents != null && !incidents.isEmpty()) {
+                        setupRecentIncidentsRecyclerView(incidents);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<IncidentListResponse> call, @NonNull Throwable t) {
+                Log.e("MainActivity", "Failed to fetch incidents", t);
+            }
+        });
+    }
+
+    private void setupRecentIncidentsRecyclerView(List<IncidentResponse> incidents) {
+        binding.rvRecentIncidents.setLayoutManager(new LinearLayoutManager(this));
+        RecentIncidentsAdapter adapter = new RecentIncidentsAdapter(incidents.subList(0, Math.min(5, incidents.size())));
+        binding.rvRecentIncidents.setAdapter(adapter);
+    }
+
+    private static class RecentIncidentsAdapter extends RecyclerView.Adapter<RecentIncidentsAdapter.ViewHolder> {
+        private final List<IncidentResponse> incidents;
+
+        RecentIncidentsAdapter(List<IncidentResponse> incidents) {
+            this.incidents = incidents;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_crime_record, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            IncidentResponse r = incidents.get(position);
+            holder.tvPrediction.setText(r.getPrediction().toUpperCase());
+            holder.tvConfidence.setText(holder.itemView.getContext().getString(R.string.confidence_format, r.getConfidence() * 100));
+            holder.tvTimestamp.setText(r.getTimestamp());
+            holder.tvLocation.setText(holder.itemView.getContext().getString(R.string.location_format, r.getLatitude(), r.getLongitude()));
+
+            if ("violent".equalsIgnoreCase(r.getPrediction())) {
+                holder.tvPrediction.setTextColor(0xFFEF4444);
+            } else {
+                holder.tvPrediction.setTextColor(0xFF10B981);
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return incidents.size();
+        }
+
+        static class ViewHolder extends RecyclerView.ViewHolder {
+            TextView tvPrediction, tvConfidence, tvTimestamp, tvLocation;
+
+            ViewHolder(View v) {
+                super(v);
+                tvPrediction = v.findViewById(R.id.tvPrediction);
+                tvConfidence = v.findViewById(R.id.tvConfidence);
+                tvTimestamp = v.findViewById(R.id.tvTimestamp);
+                tvLocation = v.findViewById(R.id.tvLocation);
+            }
+        }
     }
 
     @Override
@@ -169,11 +326,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_server_settings) {
             showServerSettingsDialog();
+            return true;
+        } else if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         } else if (id == R.id.action_stealth) {
             Toast.makeText(this, "Stealth Mode: Coming Soon!", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.action_generate_report) {
+            startActivity(new Intent(this, ReportGeneratorActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -203,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
 
         // ===== UPLOAD STATUS MESSAGE =====
         viewModel.getUploadStatusMessage().observe(this, status -> {
-            TransitionManager.beginDelayedTransition(binding.root);
+            TransitionManager.beginDelayedTransition(binding.getRoot());
             binding.tvStatus.setText(status);
 
             if (status.contains("Uploading") || status.contains("Preparing")) {
@@ -221,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
                 Double confidence = response.getConfidence();
 
                 // Get location and save result
-                processDetectionResult(prediction, confidence);
+                processDetectionResult(prediction, confidence != null ? confidence : 0.0);
             }
         });
 
@@ -237,9 +400,9 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getIsServerConnected().observe(this, isConnected -> {
             this.isServerConnected = isConnected;
             if (isConnected) {
-                binding.tvStatus.setText("✅ Server Connected");
+                binding.tvStatus.setText(R.string.server_connected);
             } else {
-                binding.tvStatus.setText("❌ Server Disconnected");
+                binding.tvStatus.setText(R.string.server_disconnected);
             }
         });
 
@@ -373,16 +536,15 @@ public class MainActivity extends AppCompatActivity {
      * Start recording video
      */
     private void startRecording() {
-        if (videoCapture == null) return;
+        if (videoCapture == null) {
+            Toast.makeText(this, "Camera not ready", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         binding.tvStatus.setText(R.string.status_recording);
         binding.fabAction.setText(R.string.btn_stop);
         binding.fabAction.setIconResource(android.R.drawable.ic_media_pause);
         binding.statusOverlay.setVisibility(View.VISIBLE);
-
-        // Start foreground service
-        Intent serviceIntent = new Intent(this, RecordingForegroundService.class);
-        ContextCompat.startForegroundService(this, serviceIntent);
 
         // Create video file
         videoFile = new File(getExternalFilesDir(null), "crime_" + System.currentTimeMillis() + ".mp4");
@@ -394,20 +556,26 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Start recording
-        recording = videoCapture.getOutput()
-                .prepareRecording(this, fileOutputOptions)
-                .withAudioEnabled()
-                .start(ContextCompat.getMainExecutor(this), recordEvent -> {
-                    if (recordEvent instanceof VideoRecordEvent.Finalize) {
-                        VideoRecordEvent.Finalize finalizeEvent = (VideoRecordEvent.Finalize) recordEvent;
-                        if (!finalizeEvent.hasError()) {
-                            // Recording finished successfully, upload it
-                            uploadVideo();
-                        } else {
-                            handleRecordingError();
+        try {
+            recording = videoCapture.getOutput()
+                    .prepareRecording(this, fileOutputOptions)
+                    .withAudioEnabled()
+                    .start(ContextCompat.getMainExecutor(this), recordEvent -> {
+                        if (recordEvent instanceof VideoRecordEvent.Finalize) {
+                            VideoRecordEvent.Finalize finalizeEvent = (VideoRecordEvent.Finalize) recordEvent;
+                            if (!finalizeEvent.hasError()) {
+                                // Recording finished successfully, upload it
+                                uploadVideo();
+                            } else {
+                                Log.e("MainActivity", "Video recording error: " + finalizeEvent.getError());
+                                handleRecordingError();
+                            }
                         }
-                    }
-                });
+                    });
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error starting recording: " + e.getMessage());
+            handleRecordingError();
+        }
     }
 
     /**
@@ -421,7 +589,6 @@ public class MainActivity extends AppCompatActivity {
         binding.fabAction.setText(R.string.btn_start);
         binding.fabAction.setIconResource(android.R.drawable.ic_media_play);
         binding.statusOverlay.setVisibility(View.GONE);
-        stopService(new Intent(this, RecordingForegroundService.class));
     }
 
     /**
@@ -469,7 +636,7 @@ public class MainActivity extends AppCompatActivity {
      * Gets location and saves result to database
      */
     private void processDetectionResult(String prediction, double confidence) {
-        String timestamp = TimeUtils.getCurrentTimestamp();
+        long timestamp = System.currentTimeMillis();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
@@ -487,20 +654,20 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Update UI with prediction result
      */
-    private void updateUIWithResult(String prediction, double confidence, String timestamp, double lat, double lon) {
-        TransitionManager.beginDelayedTransition(binding.root);
+    private void updateUIWithResult(String prediction, double confidence, long timestamp, double lat, double lon) {
+        TransitionManager.beginDelayedTransition(binding.getRoot());
         binding.resultCard.setVisibility(View.VISIBLE);
-        binding.tvPrediction.setText("Prediction: " + prediction.toUpperCase());
-        binding.tvConfidence.setText(String.format("Confidence: %.2f%%", confidence * 100));
-        binding.tvTimestamp.setText("Time: " + timestamp);
-        binding.tvLocation.setText(String.format("Location: %.4f, %.4f", lat, lon));
+        binding.tvPrediction.setText(getString(R.string.prediction_format, prediction.toUpperCase()));
+        binding.tvConfidence.setText(getString(R.string.confidence_format, confidence * 100));
+        binding.tvTimestamp.setText(getString(R.string.timestamp_format, TimeUtils.formatTimestamp(timestamp)));
+        binding.tvLocation.setText(getString(R.string.location_format, lat, lon));
 
         if ("VIOLENT".equalsIgnoreCase(prediction)) {
             binding.resultCard.setStrokeWidth(2);
             binding.resultCard.setStrokeColor(Color.RED);
             triggerHapticFeedback();
             NotificationUtils.showNotification(this, "🚨 CRIME DETECTED",
-                    "Confidence: " + String.format("%.0f%%", confidence * 100));
+                    getString(R.string.confidence_format, confidence * 100));
         } else {
             binding.resultCard.setStrokeWidth(2);
             binding.resultCard.setStrokeColor(ContextCompat.getColor(this, R.color.crime_safe));
@@ -511,8 +678,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Save result to Room database
      */
-    private void saveResult(String prediction, double confidence, String timestamp, double lat, double lon) {
-        PreferenceUtils.saveLastResult(this, prediction, confidence, timestamp);
+    private void saveResult(String prediction, double confidence, long timestamp, double lat, double lon) {
+        PreferenceUtils.saveLastResult(this, prediction, confidence, TimeUtils.formatTimestamp(timestamp));
 
         CrimeRecord record = new CrimeRecord(prediction, confidence, timestamp,
                 videoFile != null ? videoFile.getAbsolutePath() : "unknown", lat, lon);
@@ -527,11 +694,11 @@ public class MainActivity extends AppCompatActivity {
      */
     private void updateLastResultUI() {
         String lastPred = PreferenceUtils.getLastPrediction(this);
-        if (!"No data".equals(lastPred)) {
+        if (lastPred != null && !"No data".equals(lastPred)) {
             binding.resultCard.setVisibility(View.VISIBLE);
-            binding.tvPrediction.setText("Prediction: " + lastPred.toUpperCase());
-            binding.tvConfidence.setText(String.format("Confidence: %.2f%%", PreferenceUtils.getLastConfidence(this) * 100));
-            binding.tvTimestamp.setText("Time: " + PreferenceUtils.getLastTimestamp(this));
+            binding.tvPrediction.setText(getString(R.string.prediction_format, lastPred.toUpperCase()));
+            binding.tvConfidence.setText(getString(R.string.confidence_format, (double) PreferenceUtils.getLastConfidence(this) * 100));
+            binding.tvTimestamp.setText(getString(R.string.timestamp_format, PreferenceUtils.getLastTimestamp(this)));
         }
     }
 

@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat;
 public final class NotificationUtils {
     public static final String CRIME_CHANNEL_ID = "crime_alerts";
     public static final String SERVICE_CHANNEL_ID = "recording_status";
+    public static final String VIDEO_UPLOAD_CHANNEL_ID = "video_upload";
     private static final int CRIME_NOTIF_ID = 2001;
 
     private NotificationUtils() {}
@@ -39,6 +40,14 @@ public final class NotificationUtils {
             );
             serviceChannel.setDescription("Shows when video recording is active.");
             nm.createNotificationChannel(serviceChannel);
+
+            NotificationChannel uploadChannel = new NotificationChannel(
+                    VIDEO_UPLOAD_CHANNEL_ID,
+                    "Video Upload",
+                    NotificationManager.IMPORTANCE_LOW
+            );
+            uploadChannel.setDescription("Notifications for video upload progress");
+            nm.createNotificationChannel(uploadChannel);
         }
     }
 
@@ -59,6 +68,50 @@ public final class NotificationUtils {
 
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) nm.notify(CRIME_NOTIF_ID, b.build());
+    }
+
+    public static void showEmergencyActionNotification(Context context, String title, String text, String address, String fullMessage) {
+        ensureChannels(context);
+
+        // Intent to share via WhatsApp manually if user wants
+        android.content.Intent whatsappIntent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+        whatsappIntent.setType("text/plain");
+        whatsappIntent.setPackage("com.whatsapp");
+        whatsappIntent.putExtra(android.content.Intent.EXTRA_TEXT, fullMessage);
+        
+        android.app.PendingIntent pendingIntent = android.app.PendingIntent.getActivity(
+                context, 0, android.content.Intent.createChooser(whatsappIntent, "Share via WhatsApp"),
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CRIME_CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(text + "\nLocation: " + address))
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setAutoCancel(true)
+                .addAction(android.R.drawable.ic_menu_share, "Share via WhatsApp", pendingIntent);
+
+        vibrate(context);
+
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) nm.notify(CRIME_NOTIF_ID + 1, builder.build());
+    }
+
+    public static Notification buildForegroundNotification(Context context, String text, boolean isAlert) {
+        ensureChannels(context);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, SERVICE_CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.presence_video_online)
+                .setContentTitle("Crime Detection Active")
+                .setContentText(text)
+                .setOngoing(true)
+                .setPriority(isAlert ? NotificationCompat.PRIORITY_HIGH : NotificationCompat.PRIORITY_LOW);
+
+        if (isAlert) {
+            builder.setSmallIcon(android.R.drawable.ic_dialog_alert);
+        }
+
+        return builder.build();
     }
 
     private static void vibrate(Context c) {

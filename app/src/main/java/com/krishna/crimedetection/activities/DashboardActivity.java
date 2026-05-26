@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +19,8 @@ import com.krishna.crimedetection.R;
 import com.krishna.crimedetection.auth.ProfileActivity;
 import com.krishna.crimedetection.models.AppDatabase;
 import com.krishna.crimedetection.models.CrimeRecord;
+import com.krishna.crimedetection.utils.TimeUtils;
+import com.krishna.crimedetection.viewmodel.CrimeViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +32,14 @@ DashboardActivity extends AppCompatActivity {
     private TextView tvEmpty;
     private HistoryAdapter adapter;
     private BottomNavigationView bottomNavigation;
+    private CrimeViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        viewModel = new ViewModelProvider(this).get(CrimeViewModel.class);
 
         setSupportActionBar(findViewById(R.id.toolbar));
         if (getSupportActionBar() != null) {
@@ -50,7 +56,7 @@ DashboardActivity extends AppCompatActivity {
         adapter = new HistoryAdapter();
         rvHistory.setAdapter(adapter);
 
-        AppDatabase.getInstance(this).crimeDao().getAllRecords().observe(this, records -> {
+        viewModel.getAllCrimeRecords().observe(this, records -> {
             if (records == null || records.isEmpty()) {
                 tvEmpty.setVisibility(View.VISIBLE);
                 rvHistory.setVisibility(View.GONE);
@@ -71,6 +77,8 @@ DashboardActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
                 return true;
             } else if (id == R.id.nav_dashboard) {
+                startActivity(new Intent(this, IncidentHistoryActivity.class));
+                overridePendingTransition(0, 0);
                 return true;
             } else if (id == R.id.nav_emergency) {
                 startActivity(new Intent(this, EmergencyActivity.class));
@@ -105,10 +113,15 @@ DashboardActivity extends AppCompatActivity {
             CrimeRecord r = records.get(position);
             holder.tvPrediction.setText(r.getPrediction().toUpperCase());
             holder.tvConfidence.setText(String.format("%.1f%%", r.getConfidence() * 100));
-            holder.tvTimestamp.setText(r.getTimestamp());
-            holder.tvLocation.setText(String.format("Location: %.4f, %.4f", r.getLatitude(), r.getLongitude()));
+            holder.tvTimestamp.setText(TimeUtils.formatTimestamp(r.getTimestamp()));
 
-            if ("crime".equalsIgnoreCase(r.getPrediction())) {
+            String locationText = String.format("Location: %.4f, %.4f", r.getLatitude(), r.getLongitude());
+            if ("realtime".equalsIgnoreCase(r.getDetectionType())) {
+                locationText += " (Real-time)";
+            }
+            holder.tvLocation.setText(locationText);
+
+            if ("violent".equalsIgnoreCase(r.getPrediction()) || "crime".equalsIgnoreCase(r.getPrediction())) {
                 holder.tvPrediction.setTextColor(0xFFEF4444); // Red
             } else {
                 holder.tvPrediction.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.crime_safe));

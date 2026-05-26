@@ -2,6 +2,8 @@
 <resources>
     <!-- Professional Indigo & Slate Palette (Light) -->
     <color name="colorPrimary">#4F46E5</color> <!-- Indigo 600 -->
+    <color name="crime_primary">#4F46E5</color>
+    <color name="black">#000000</color>
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorPrimaryContainer">#EEF2FF</color> <!-- Indigo 50 -->
     <color name="colorOnPrimaryContainer">#3730A3</color>
@@ -31,4 +33,7 @@
     <color name="glass_black">#CC000000</color>
 
     <color name="bottom_nav_inactive">#94A3B8</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="red_alert">#D32F2F</color>
 </resources>

@@ -299,7 +299,7 @@ public class CrimeViewModel extends AndroidViewModel {
         try {
             Log.i(TAG, "Saving prediction to database...");
 
-            String timestamp = TimeUtils.getCurrentTimestamp();
+            long timestamp = System.currentTimeMillis();
 
             // Create crime record with all available data
             CrimeRecord crimeRecord = new CrimeRecord(
@@ -460,6 +460,15 @@ public class CrimeViewModel extends AndroidViewModel {
      */
     public LiveData<List<CrimeRecord>> getCrimeRecordsByType(String detectionType) {
         return crimeRepository.getCrimeRecordsByType(detectionType);
+    }
+
+    /**
+     * Insert a crime record
+     *
+     * @param crimeRecord Record to insert
+     */
+    public void insertCrimeRecord(CrimeRecord crimeRecord) {
+        crimeRepository.insertCrimeRecord(crimeRecord);
     }
 
     /**

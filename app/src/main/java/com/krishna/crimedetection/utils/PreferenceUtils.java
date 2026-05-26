@@ -20,8 +20,10 @@ public final class PreferenceUtils {
     private static final String KEY_USER_LOCATION = "user_location";
     private static final String KEY_PROFILE_IMAGE_URI = "profile_image_uri";
     private static final String KEY_PROFILE_AVATAR_RES = "profile_avatar_res";
+    private static final String KEY_DRIVE_FOLDER_ID = "drive_folder_id";
+    private static final String KEY_EMERGENCY_EMAIL = "emergency_email";
     
-    private static final String DEFAULT_URL = "http://192.168.1.10:5000/";
+    private static final String DEFAULT_URL = "http://10.20.51.215:8000/";
 
     private PreferenceUtils() {}
 
@@ -132,16 +134,14 @@ public final class PreferenceUtils {
      * Save server URL to preferences
      */
     public static void saveServerURL(Context context, String url) {
-        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-        prefs.edit().putString("server_url", url).apply();
+        setBaseUrl(context, url);
     }
 
     /**
      * Get server URL from preferences
      */
     public static String getServerURL(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-        return prefs.getString("server_url", "http://192.168.1.100:8000");  // Default IP
+        return getBaseUrl(context);
     }
 
     public static void setProfileAvatarRes(Context context, int resId) {
@@ -150,5 +150,21 @@ public final class PreferenceUtils {
 
     public static int getProfileAvatarRes(Context context) {
         return getPrefs(context).getInt(KEY_PROFILE_AVATAR_RES, 0);
+    }
+
+    public static void setDriveFolderId(Context context, String folderId) {
+        getPrefs(context).edit().putString(KEY_DRIVE_FOLDER_ID, folderId).apply();
+    }
+
+    public static String getDriveFolderId(Context context) {
+        return getPrefs(context).getString(KEY_DRIVE_FOLDER_ID, "");
+    }
+
+    public static void setEmergencyEmail(Context context, String email) {
+        getPrefs(context).edit().putString(KEY_EMERGENCY_EMAIL, email).apply();
+    }
+
+    public static String getEmergencyEmail(Context context) {
+        return getPrefs(context).getString(KEY_EMERGENCY_EMAIL, "");
     }
 }

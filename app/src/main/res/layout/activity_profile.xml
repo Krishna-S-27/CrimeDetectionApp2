@@ -222,6 +222,16 @@
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAdminDashboard"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="16dp"
+                android:text="Admin Dashboard"
+                android:visibility="gone"
+                app:cornerRadius="16dp"
+                app:icon="@android:drawable/ic_menu_manage" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEdit"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"

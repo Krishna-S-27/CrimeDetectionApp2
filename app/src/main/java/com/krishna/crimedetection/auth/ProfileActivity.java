@@ -20,11 +20,19 @@ import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.krishna.crimedetection.activities.AdminDashboardActivity;
 import com.krishna.crimedetection.activities.DashboardActivity;
 import com.krishna.crimedetection.activities.EmergencyActivity;
 import com.krishna.crimedetection.activities.MainActivity;
 import com.krishna.crimedetection.databinding.ActivityProfileBinding;
 import com.krishna.crimedetection.utils.PreferenceUtils;
+import com.krishna.crimedetection.network.ApiService;
+import com.krishna.crimedetection.network.RetrofitClient;
+import com.krishna.crimedetection.network.models.ProfileResponse;
+import com.krishna.crimedetection.utils.TokenManager;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.util.List;
 import java.util.Locale;
@@ -35,28 +43,68 @@ public class ProfileActivity extends AppCompatActivity {
     private boolean isEditing = false;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
+    private TokenManager tokenManager;
+    private ApiService apiService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        tokenManager = new TokenManager(this);
+        apiService = RetrofitClient.getApiService(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         setupImagePicker();
         setupUI();
         loadUserData();
+        fetchProfileFromServer();
         getCurrentLocation();
         setupNavigation();
         loadProfileImage();
 
         binding.btnEditPhoto.setOnClickListener(v -> openImagePicker());
         binding.btnEdit.setOnClickListener(v -> toggleEditMode());
+        binding.btnAdminDashboard.setOnClickListener(v -> startActivity(new Intent(this, AdminDashboardActivity.class)));
+
+        if (tokenManager.isAdmin()) {
+            binding.btnAdminDashboard.setVisibility(View.VISIBLE);
+        }
+
         binding.btnLogout.setOnClickListener(v -> {
-            PreferenceUtils.logout(this);
+            tokenManager.logout();
             Intent intent = new Intent(this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+        });
+    }
+
+    private void fetchProfileFromServer() {
+        apiService.getProfile().enqueue(new Callback<ProfileResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ProfileResponse> call, @NonNull Response<ProfileResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ProfileResponse profile = response.body();
+                    binding.etName.setText(profile.getUsername());
+                    binding.tvProfileName.setText(profile.getUsername());
+                    binding.etEmail.setText(profile.getEmail());
+                    binding.etPhone.setText(profile.getPhoneNumber());
+                    binding.etEmergency.setText(profile.getEmergencyContact());
+
+                    // Sync local storage with server data
+                    PreferenceUtils.saveFullProfile(ProfileActivity.this,
+                            profile.getUsername(),
+                            profile.getEmail(),
+                            profile.getPhoneNumber(),
+                            profile.getEmergencyContact());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ProfileResponse> call, @NonNull Throwable t) {
+                Toast.makeText(ProfileActivity.this, "Failed to load profile from server", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

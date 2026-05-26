@@ -20,6 +20,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.krishna.crimedetection.R;
 import com.krishna.crimedetection.auth.ProfileActivity;
 import com.krishna.crimedetection.utils.PreferenceUtils;
+import com.krishna.crimedetection.utils.WhatsAppManager;
 
 import java.util.Locale;
 
@@ -65,6 +66,7 @@ public class EmergencyActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.btnCallFamily).setOnClickListener(v -> makeCall(PreferenceUtils.getEmergencyNumber(this)));
+        findViewById(R.id.btnShareWhatsApp).setOnClickListener(v -> shareOnWhatsApp());
         
         findViewById(R.id.cardPolice).setOnClickListener(v -> makeCall(getString(R.string.num_police)));
         findViewById(R.id.cardAmbulance).setOnClickListener(v -> makeCall(getString(R.string.num_ambulance)));
@@ -132,11 +134,53 @@ public class EmergencyActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void shareOnWhatsApp() {
+        String number = PreferenceUtils.getEmergencyNumber(this);
+        if (number == null || number.isEmpty()) {
+            Toast.makeText(this, "Please set an emergency number first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2002);
+            return;
+        }
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            String message = "EMERGENCY! I need help. ";
+            if (location != null) {
+                message += "My current location: https://www.google.com/maps/search/?api=1&query=" + 
+                        location.getLatitude() + "," + location.getLongitude();
+            } else {
+                message += "Unable to fetch location details.";
+            }
+
+            WhatsAppManager.sendWhatsAppMessage(this, number, message, new WhatsAppManager.Callback() {
+                @Override
+                public void onSuccess(String phoneNumber) {
+                    Toast.makeText(EmergencyActivity.this, "WhatsApp message initiated", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(String phoneNumber, String error) {
+                    Toast.makeText(EmergencyActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onNotInstalled() {
+                    Toast.makeText(EmergencyActivity.this, "WhatsApp is not installed", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 2001 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             searchNearbyPolice();
+        } else if (requestCode == 2002 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            shareOnWhatsApp();
         }
     }
 }

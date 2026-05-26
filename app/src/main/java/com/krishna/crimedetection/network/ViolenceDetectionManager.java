@@ -47,10 +47,10 @@ public class ViolenceDetectionManager {
     public ViolenceDetectionManager(Context context, String serverURL) {
         this.context = context;
         this.serverURL = serverURL;
-        this.apiService = ApiClient.getService(serverURL);
+        // Use RetrofitClient to include Authentication headers
+        this.apiService = RetrofitClient.getApiService(context);
 
-        Log.i(TAG, "ViolenceDetectionManager initialized");
-        Log.i(TAG, "Server URL: " + serverURL);
+        Log.i(TAG, "ViolenceDetectionManager initialized with authenticated client");
     }
 
     // ===================== PUBLIC METHODS =====================
@@ -344,10 +344,10 @@ public class ViolenceDetectionManager {
      * @param newServerURL New server URL
      */
     public void updateServerURL(String newServerURL) {
-        Log.i(TAG, "Updating server URL from " + this.serverURL + " to " + newServerURL);
+        Log.i(TAG, "Updating server URL to " + newServerURL);
         this.serverURL = newServerURL;
-        ApiClient.reset();
-        this.apiService = ApiClient.getService(newServerURL);
+        // RetrofitClient will pick up the new URL from PreferenceUtils
+        this.apiService = RetrofitClient.getApiService(context);
     }
 
     /**

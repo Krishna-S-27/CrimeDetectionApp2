@@ -20,6 +20,23 @@ public class ApiClient {
     private static String currentBaseUrl = null;
 
     /**
+     * Get Retrofit instance. Used by classes that need direct access to Retrofit.
+     * Defaults to 10.0.2.2 for emulator.
+     */
+    public static Retrofit getClient() {
+        if (retrofit == null) {
+            getService("http://10.0.2.2:8000/");
+        }
+        return retrofit;
+    }
+
+    public static Retrofit getClient(android.content.Context context) {
+        String baseUrl = com.krishna.crimedetection.utils.PreferenceUtils.getBaseUrl(context);
+        getService(baseUrl);
+        return retrofit;
+    }
+
+    /**
      * Get ApiService instance with specified base URL
      * Creates new Retrofit instance if URL changed
      *
