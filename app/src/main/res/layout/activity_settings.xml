@@ -2,18 +2,25 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Settings"
-            app:navigationIcon="@android:drawable/ic_menu_revert" />
+            app:title="@string/title_settings"
+            app:titleCentered="true"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:titleTextColor="@color/text_primary"
+            app:navigationIcon="@drawable/ic_back"
+            app:navigationIconTint="@color/text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -25,90 +32,121 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
+            <!-- Notifications Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Notifications"
+                android:text="@string/label_notifications"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                android:textColor="?attr/colorPrimary"
-                android:layout_marginBottom="8dp" />
+                android:textColor="@color/colorPrimary"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="12dp" />
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switchNotifications"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Enable Notifications"
-                android:padding="8dp" />
+                android:background="@drawable/glass_card_bg"
+                android:orientation="vertical"
+                android:padding="8dp">
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switchSound"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Notification Sound"
-                android:padding="8dp" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchNotifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_enable_notifications"
+                    android:textColor="@color/text_primary"
+                    android:padding="12dp" />
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switchVibration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Vibration"
-                android:padding="8dp" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchSound"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_notification_sound"
+                    android:textColor="@color/text_primary"
+                    android:padding="12dp" />
 
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="16dp" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchVibration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_vibration"
+                    android:textColor="@color/text_primary"
+                    android:padding="12dp" />
+            </LinearLayout>
 
+            <!-- Alert Types Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Alert Types"
+                android:text="@string/label_alert_types"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                android:textColor="?attr/colorPrimary"
-                android:layout_marginBottom="8dp" />
+                android:textColor="@color/colorPrimary"
+                android:letterSpacing="0.1"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switchViolenceAlerts"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Violence Detections"
-                android:padding="8dp" />
+                android:background="@drawable/glass_card_bg"
+                android:orientation="vertical"
+                android:padding="8dp">
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switchAdminAlerts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Admin Reviews"
-                android:padding="8dp" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchViolenceAlerts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_violence_detections"
+                    android:textColor="@color/text_primary"
+                    android:padding="12dp" />
 
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="16dp" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchAdminAlerts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_admin_reviews"
+                    android:textColor="@color/text_primary"
+                    android:padding="12dp" />
+            </LinearLayout>
 
+            <!-- About Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="About"
+                android:text="@string/label_about"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                android:textColor="?attr/colorPrimary"
-                android:layout_marginBottom="8dp" />
+                android:textColor="@color/colorPrimary"
+                android:letterSpacing="0.1"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
 
-            <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TextButton"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Privacy Policy"
-                android:gravity="start" />
+                android:background="@drawable/glass_card_bg"
+                android:orientation="vertical"
+                android:padding="8dp">
 
-            <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Terms &amp; Conditions"
-                android:gravity="start" />
+                <com.google.android.material.button.MaterialButton
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_privacy_policy"
+                    android:textColor="@color/text_primary"
+                    android:gravity="start"
+                    android:padding="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_terms_conditions"
+                    android:textColor="@color/text_primary"
+                    android:gravity="start"
+                    android:padding="12dp" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

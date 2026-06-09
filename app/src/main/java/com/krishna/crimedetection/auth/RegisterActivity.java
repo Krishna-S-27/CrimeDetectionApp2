@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.krishna.crimedetection.R;
 import com.krishna.crimedetection.activities.MainActivity;
 import com.krishna.crimedetection.activities.PermissionsActivity;
 import com.krishna.crimedetection.databinding.ActivityRegisterBinding;
@@ -59,7 +60,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void sendOtp(String target, String type) {
         if (target.isEmpty()) {
-            Toast.makeText(this, "Please enter " + type, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_enter_target, type), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -72,38 +73,38 @@ public class RegisterActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<MessageResponse> call, @NonNull Response<MessageResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     String msg = response.body().getMessage();
-                    Toast.makeText(RegisterActivity.this, "OTP requested for " + target, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, getString(R.string.msg_otp_requested, target), Toast.LENGTH_SHORT).show();
                     
                     if (type.equals("phone")) {
                         binding.otpContainer.setVisibility(View.VISIBLE);
                         // Auto-fill shortcut for developers
                         if (msg != null && msg.contains("DEV_MODE_OTP:")) {
                             binding.etOtp.setText(msg.split(":")[1]);
-                            Toast.makeText(RegisterActivity.this, "Development: OTP Auto-filled", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterActivity.this, getString(R.string.msg_dev_otp_autofill), Toast.LENGTH_SHORT).show();
                         }
                     } else if (type.equals("email")) {
                         binding.otpEmailContainer.setVisibility(View.VISIBLE);
                         // Auto-fill shortcut for developers
                         if (msg != null && msg.contains("DEV_MODE_OTP:")) {
                             binding.etEmailOtp.setText(msg.split(":")[1]);
-                            Toast.makeText(RegisterActivity.this, "Development: Email OTP Auto-filled", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterActivity.this, getString(R.string.msg_dev_otp_autofill), Toast.LENGTH_SHORT).show();
                         }
                     }
                 } else {
-                    Toast.makeText(RegisterActivity.this, "Failed to send OTP. Check backend logs.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, getString(R.string.error_otp_send_failed), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<MessageResponse> call, @NonNull Throwable t) {
-                Toast.makeText(RegisterActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this, getString(R.string.msg_error_format, t.getMessage()), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void verifyOtp(String target, String otp, String type) {
         if (otp.isEmpty()) {
-            Toast.makeText(this, "Please enter OTP", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_otp_required), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -116,34 +117,34 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<MessageResponse> call, @NonNull Response<MessageResponse> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(RegisterActivity.this, "Verification Successful", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, getString(R.string.msg_verification_success), Toast.LENGTH_SHORT).show();
                     if (type.equals("phone")) {
                         isPhoneVerified = true;
                         binding.otpContainer.setVisibility(View.GONE);
-                        binding.btnVerifyPhone.setText("Verified ✅");
+                        binding.btnVerifyPhone.setText(R.string.label_verified);
                         binding.btnVerifyPhone.setEnabled(false);
                         binding.etUserPhone.setEnabled(false);
                     } else {
                         isEmailVerified = true;
-                        binding.btnVerifyEmail.setText("Verified ✅");
+                        binding.btnVerifyEmail.setText(R.string.label_verified);
                         binding.btnVerifyEmail.setEnabled(false);
                         binding.etEmail.setEnabled(false);
                     }
                 } else {
-                    Toast.makeText(RegisterActivity.this, "Invalid OTP", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, getString(R.string.error_invalid_otp), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<MessageResponse> call, @NonNull Throwable t) {
-                Toast.makeText(RegisterActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this, getString(R.string.msg_error_format, t.getMessage()), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void verifyField(String field, String value) {
         if (value.isEmpty()) {
-            Toast.makeText(this, "Please enter " + field, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_enter_target, field), Toast.LENGTH_SHORT).show();
             return;
         }
         // Simulated OTP/Verification
@@ -161,77 +162,77 @@ public class RegisterActivity extends AppCompatActivity {
         String password = binding.etPassword.getText().toString().trim();
 
         if (firstName.isEmpty()) {
-            binding.etFirstName.setError("First name is required");
+            binding.etFirstName.setError(getString(R.string.error_first_name_required));
             binding.etFirstName.requestFocus();
             return;
         }
 
         if (lastName.isEmpty()) {
-            binding.etLastName.setError("Last name is required");
+            binding.etLastName.setError(getString(R.string.error_last_name_required));
             binding.etLastName.requestFocus();
             return;
         }
 
         if (username.isEmpty()) {
-            binding.etUsername.setError("Username is required");
+            binding.etUsername.setError(getString(R.string.error_username_required));
             binding.etUsername.requestFocus();
             return;
         }
 
         if (userPhone.isEmpty()) {
-            binding.etUserPhone.setError("User phone number is required");
+            binding.etUserPhone.setError(getString(R.string.error_phone_required));
             binding.etUserPhone.requestFocus();
             return;
         }
 
         if (email.isEmpty()) {
-            binding.etEmail.setError("Email is required");
+            binding.etEmail.setError(getString(R.string.error_email_required));
             binding.etEmail.requestFocus();
             return;
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            binding.etEmail.setError("Please enter a valid email");
+            binding.etEmail.setError(getString(R.string.error_invalid_email));
             binding.etEmail.requestFocus();
             return;
         }
 
         if (emergencyPhone.isEmpty()) {
-            binding.etFamilyNum.setError("Emergency phone number is required");
+            binding.etFamilyNum.setError(getString(R.string.error_emergency_phone_required));
             binding.etFamilyNum.requestFocus();
             return;
         }
 
         if (userPhone.equals(emergencyPhone)) {
-            binding.etFamilyNum.setError("Emergency number must be different from your own number");
+            binding.etFamilyNum.setError(getString(R.string.error_emergency_phone_same));
             binding.etFamilyNum.requestFocus();
             return;
         }
 
         if (emergencyEmail.isEmpty()) {
-            binding.etEmergencyEmail.setError("Emergency email is required");
+            binding.etEmergencyEmail.setError(getString(R.string.error_emergency_email_required));
             binding.etEmergencyEmail.requestFocus();
             return;
         }
 
         if (password.isEmpty()) {
-            binding.etPassword.setError("Password is required");
+            binding.etPassword.setError(getString(R.string.error_password_required));
             binding.etPassword.requestFocus();
             return;
         }
 
         if (password.length() < 8) {
-            Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_password_too_short), Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!isPhoneVerified) {
-            Toast.makeText(this, "Please verify your phone number first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_verify_phone_first), Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!isEmailVerified) {
-            Toast.makeText(this, "Please verify your email first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_verify_email_first), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -282,7 +283,7 @@ public class RegisterActivity extends AppCompatActivity {
                         }).start();
                     }
                     
-                    Toast.makeText(RegisterActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, getString(R.string.msg_registration_success), Toast.LENGTH_SHORT).show();
                     
                     // Also save to PreferenceUtils for immediate UI updates in other activities
                     PreferenceUtils.saveFullProfile(RegisterActivity.this, 
@@ -299,7 +300,7 @@ public class RegisterActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else {
-                    String errorMessage = "Registration failed";
+                    String errorMessage = getString(R.string.msg_registration_failed);
                     try {
                         if (response.errorBody() != null) {
                             String errorBody = response.errorBody().string();
@@ -307,11 +308,11 @@ public class RegisterActivity extends AppCompatActivity {
                             if (jsonObject.has("detail")) {
                                 errorMessage = jsonObject.getString("detail");
                             } else {
-                                errorMessage = "Registration failed: " + response.code();
+                                errorMessage = getString(R.string.msg_registration_failed) + ": " + response.code();
                             }
                         }
                     } catch (Exception e) {
-                        errorMessage = "Registration failed: " + response.message();
+                        errorMessage = getString(R.string.msg_registration_failed) + ": " + response.message();
                     }
                     Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 }
@@ -321,7 +322,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
                 showLoading(false);
                 Log.e("RegisterActivity", "Registration failed", t);
-                Toast.makeText(RegisterActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this, getString(R.string.msg_network_error, t.getMessage()), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -329,9 +330,9 @@ public class RegisterActivity extends AppCompatActivity {
     private void showLoading(boolean show) {
         binding.btnRegister.setEnabled(!show);
         if (show) {
-            binding.btnRegister.setText("Registering...");
+            binding.btnRegister.setText(R.string.label_registering);
         } else {
-            binding.btnRegister.setText("Register");
+            binding.btnRegister.setText(R.string.btn_register);
         }
     }
 }

@@ -119,14 +119,14 @@ public class EmergencyActivity extends AppCompatActivity {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(webUri)));
                 }
             } else {
-                Toast.makeText(this, "Location unavailable. Please enable GPS.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.error_location_unavailable, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void makeCall(String number) {
         if (number == null || number.isEmpty()) {
-            Toast.makeText(this, "No number provided", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_no_number_provided, Toast.LENGTH_SHORT).show();
             return;
         }
         Intent intent = new Intent(Intent.ACTION_DIAL);
@@ -137,7 +137,7 @@ public class EmergencyActivity extends AppCompatActivity {
     private void shareOnWhatsApp() {
         String number = PreferenceUtils.getEmergencyNumber(this);
         if (number == null || number.isEmpty()) {
-            Toast.makeText(this, "Please set an emergency number first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_set_emergency_number, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -147,28 +147,28 @@ public class EmergencyActivity extends AppCompatActivity {
         }
 
         fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-            String message = "EMERGENCY! I need help. ";
+            String message = getString(R.string.msg_emergency_whatsapp) + " ";
             if (location != null) {
                 message += "My current location: https://www.google.com/maps/search/?api=1&query=" + 
                         location.getLatitude() + "," + location.getLongitude();
             } else {
-                message += "Unable to fetch location details.";
+                message += getString(R.string.msg_location_not_found);
             }
 
             WhatsAppManager.sendWhatsAppMessage(this, number, message, new WhatsAppManager.Callback() {
                 @Override
                 public void onSuccess(String phoneNumber) {
-                    Toast.makeText(EmergencyActivity.this, "WhatsApp message initiated", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EmergencyActivity.this, R.string.msg_whatsapp_initiated, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onFailure(String phoneNumber, String error) {
-                    Toast.makeText(EmergencyActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EmergencyActivity.this, getString(R.string.msg_error_format, error), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onNotInstalled() {
-                    Toast.makeText(EmergencyActivity.this, "WhatsApp is not installed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EmergencyActivity.this, R.string.msg_whatsapp_not_installed, Toast.LENGTH_SHORT).show();
                 }
             });
         });

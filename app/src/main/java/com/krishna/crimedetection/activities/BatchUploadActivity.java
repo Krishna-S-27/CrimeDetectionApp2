@@ -3,6 +3,7 @@ package com.krishna.crimedetection.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,7 +29,7 @@ import java.util.Locale;
 public class BatchUploadActivity extends AppCompatActivity {
 
     private VideoUploadViewModel viewModel;
-    private ActivityResultLauncher<String> videoPickerLauncher;
+    private ActivityResultLauncher<Intent> videoPickerLauncher;
 
     // UI Components - Selection
     private View selectionContainer;
@@ -36,7 +37,7 @@ public class BatchUploadActivity extends AppCompatActivity {
     private View videoInfoCard;
     private ImageView thumbnailPreview;
     private TextView fileNameText, fileSizeText, durationText;
-    private MaterialButton analyzeBtn, clearSelectionBtn;
+    private MaterialButton analyzeBtn;
 
     // UI Components - Upload
     private View uploadContainer;
@@ -48,7 +49,6 @@ public class BatchUploadActivity extends AppCompatActivity {
     private View resultContainer;
     private TextView predictionBadge, confidenceScore, inferenceTimeText, totalTimeText;
     private LinearProgressIndicator confidenceProgress;
-    private MaterialButton viewInHistoryBtn, uploadAnotherBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +90,7 @@ public class BatchUploadActivity extends AppCompatActivity {
         fileSizeText = findViewById(R.id.fileSizeText);
         durationText = findViewById(R.id.durationText);
         analyzeBtn = findViewById(R.id.analyzeBtn);
-        clearSelectionBtn = findViewById(R.id.clearSelectionBtn);
+        MaterialButton clearSelectionBtn = findViewById(R.id.clearSelectionBtn);
 
         // Upload
         uploadStatusTitle = findViewById(R.id.uploadStatusTitle);
@@ -106,11 +106,16 @@ public class BatchUploadActivity extends AppCompatActivity {
         confidenceProgress = findViewById(R.id.confidenceProgress);
         inferenceTimeText = findViewById(R.id.inferenceTimeText);
         totalTimeText = findViewById(R.id.totalTimeText);
-        viewInHistoryBtn = findViewById(R.id.viewInHistoryBtn);
-        uploadAnotherBtn = findViewById(R.id.uploadAnotherBtn);
+        MaterialButton viewInHistoryBtn = findViewById(R.id.viewInHistoryBtn);
+        MaterialButton uploadAnotherBtn = findViewById(R.id.uploadAnotherBtn);
 
         // Listeners
-        videoPickerCard.setOnClickListener(v -> videoPickerLauncher.launch("video/*"));
+        videoPickerCard.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("video/*");
+            videoPickerLauncher.launch(intent);
+        });
         clearSelectionBtn.setOnClickListener(v -> viewModel.clearSelection());
         analyzeBtn.setOnClickListener(v -> viewModel.uploadVideo());
         cancelUploadBtn.setOnClickListener(v -> showCancelConfirmation());
@@ -124,18 +129,33 @@ public class BatchUploadActivity extends AppCompatActivity {
 
     private void setupPickers() {
         videoPickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        if (FileUtils.isValidVideoFormat(FileUtils.getFileNameFromUri(this, uri))) {
-                            long size = FileUtils.getFileSize(this, uri);
-                            if (size > 500 * 1024 * 1024) { // 500 MB
-                                Toast.makeText(this, "Video exceeds 500MB limit", Toast.LENGTH_LONG).show();
-                            } else {
-                                viewModel.selectVideo(uri);
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (uri != null) {
+                            try {
+                                // Take persistable permission to keep access across reboots
+                                final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
+                                try {
+                                    getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                                } catch (SecurityException e) {
+                                    Log.w("BatchUploadActivity", "Failed to take persistable permission, might be a temporary URI");
+                                }
+
+                                if (FileUtils.isValidVideoFormat(FileUtils.getFileNameFromUri(this, uri))) {
+                                    long size = FileUtils.getFileSize(this, uri);
+                                    if (size > 500 * 1024 * 1024) { // 500 MB
+                                        Toast.makeText(this, R.string.error_video_size_limit, Toast.LENGTH_LONG).show();
+                                    } else {
+                                        viewModel.selectVideo(uri);
+                                    }
+                                } else {
+                                    Toast.makeText(this, R.string.error_unsupported_format, Toast.LENGTH_LONG).show();
+                                }
+                            } catch (Exception e) {
+                                Log.e("BatchUploadActivity", "Error picking video", e);
                             }
-                        } else {
-                            Toast.makeText(this, "Unsupported video format", Toast.LENGTH_LONG).show();
                         }
                     }
                 }
@@ -186,6 +206,7 @@ public class BatchUploadActivity extends AppCompatActivity {
         switch (status) {
             case IDLE:
             case SELECTING:
+            case ERROR:
                 selectionContainer.setVisibility(View.VISIBLE);
                 break;
             case UPLOADING:
@@ -202,9 +223,6 @@ public class BatchUploadActivity extends AppCompatActivity {
             case DONE:
                 resultContainer.setVisibility(View.VISIBLE);
                 break;
-            case ERROR:
-                selectionContainer.setVisibility(View.VISIBLE);
-                break;
         }
     }
 
@@ -218,21 +236,18 @@ public class BatchUploadActivity extends AppCompatActivity {
         confidenceScore.setText(result.getConfidencePercent());
         confidenceProgress.setProgress((int) (result.getConfidence() * 100));
         
-        inferenceTimeText.setText(String.format(Locale.getDefault(), "%.1fs", result.getInferenceTimeMs() / 1000.0));
-        totalTimeText.setText(String.format(Locale.getDefault(), "%.1fs", result.getTotalTimeMs() / 1000.0));
+        inferenceTimeText.setText(getString(R.string.label_seconds_format, result.getInferenceTimeMs() / 1000.0));
+        totalTimeText.setText(getString(R.string.label_seconds_format, result.getTotalTimeMs() / 1000.0));
     }
 
     private void showCancelConfirmation() {
         new AlertDialog.Builder(this)
-                .setTitle("Cancel Upload")
-                .setMessage("Are you sure you want to cancel the video upload?")
-                .setPositiveButton("Yes", (dialog, which) -> viewModel.cancelUpload())
-                .setNegativeButton("No", null)
+                .setTitle(R.string.title_cancel_upload)
+                .setMessage(R.string.msg_cancel_upload_confirm)
+                .setPositiveButton(R.string.btn_start, (dialog, which) -> viewModel.cancelUpload())
+                .setNegativeButton(R.string.clear, null)
                 .show();
     }
 
-    @Override
-    public void onBackPressed() {
-        getOnBackPressedDispatcher().onBackPressed();
-    }
+    // onBackPressed() is handled by OnBackPressedCallback in onCreate
 }

@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.krishna.crimedetection.R;
 import com.krishna.crimedetection.activities.PermissionsActivity;
 import com.krishna.crimedetection.databinding.ActivityLoginBinding;
 import com.krishna.crimedetection.network.ApiService;
@@ -57,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = binding.etPassword.getText().toString().trim();
 
         if (usernameOrEmail.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_fill_all_fields), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -76,27 +77,34 @@ public class LoginActivity extends AppCompatActivity {
                     tokenManager.saveToken(auth.getAccessToken());
                     
                     if (auth.getUser() != null) {
+                        Log.d("LoginActivity", "User login successful: " + auth.getUser().getUsername());
                         tokenManager.saveUserInfo(
                                 auth.getUser().getId(),
                                 auth.getUser().getUsername(),
                                 auth.getUser().getEmail(),
                                 auth.getUser().getRole()
                         );
-                        // Also save to PreferenceUtils for consistency
-                        PreferenceUtils.saveUser(LoginActivity.this, 
-                                auth.getUser().getUsername(), 
-                                auth.getUser().getEmail(), 
-                                "");
+                        // Save complete profile to PreferenceUtils for display
+                        String phone = auth.getUser().getPhoneNumber() != null ? auth.getUser().getPhoneNumber() : "";
+                        String emergency = auth.getUser().getEmergencyContact() != null ? auth.getUser().getEmergencyContact() : "";
+                        Log.d("LoginActivity", "Saving profile - Name: " + auth.getUser().getUsername() + 
+                              ", Email: " + auth.getUser().getEmail() + ", Phone: " + phone + ", Emergency: " + emergency);
+                        PreferenceUtils.saveFullProfile(LoginActivity.this,
+                                auth.getUser().getUsername(),
+                                auth.getUser().getEmail(),
+                                phone,
+                                emergency);
                     }
                     
-                    Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.msg_login_success), Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, PermissionsActivity.class));
                     finish();
                 } else {
-                    String error = "Invalid credentials";
+                    String error = getString(R.string.error_invalid_credentials);
                     if (response.code() == 401) {
-                        error = "Incorrect email or password";
+                        error = getString(R.string.error_incorrect_credentials);
                     }
+                    Log.e("LoginActivity", "Login failed with code: " + response.code());
                     Toast.makeText(LoginActivity.this, error, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -105,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
                 showLoading(false);
                 Log.e("LoginActivity", "Login failed", t);
-                Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.msg_network_error, t.getMessage()), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -114,9 +122,9 @@ public class LoginActivity extends AppCompatActivity {
         binding.btnLogin.setEnabled(!show);
         // You could add a progress bar to activity_login.xml if needed
         if (show) {
-            binding.btnLogin.setText("Logging in...");
+            binding.btnLogin.setText(R.string.label_logging_in);
         } else {
-            binding.btnLogin.setText("Login");
+            binding.btnLogin.setText(R.string.btn_signin);
         }
     }
 }

@@ -45,6 +45,18 @@ public interface ApiService {
     Call<ProfileResponse> getProfile();
 
     /**
+     * Delete current user profile
+     */
+    @retrofit2.http.DELETE("auth/profile")
+    Call<MessageResponse> deleteProfile();
+
+    /**
+     * Update user profile
+     */
+    @POST("auth/profile/update")
+    Call<MessageResponse> updateProfile(@Body Map<String, String> profileData);
+
+    /**
      * Save FCM token for the user
      */
     @POST("api/v1/user/fcm-token")
@@ -97,6 +109,23 @@ public interface ApiService {
      */
     @GET("api/v1/incidents/user/statistics")
     Call<StatisticsResponse> getStatistics();
+
+    // ===================== NOTIFICATION ENDPOINTS =====================
+
+    /**
+     * Get list of notifications for the current user
+     */
+    @GET("api/v1/notifications/list")
+    Call<com.krishna.crimedetection.network.models.NotificationListResponse> getNotifications(
+            @retrofit2.http.Query("skip") int skip,
+            @retrofit2.http.Query("limit") int limit
+    );
+
+    /**
+     * Mark notification as read
+     */
+    @POST("api/v1/notifications/{id}/read")
+    Call<MessageResponse> markNotificationRead(@Path("id") int id);
 
     // ===================== ADMIN ENDPOINTS =====================
 

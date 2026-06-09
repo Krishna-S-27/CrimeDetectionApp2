@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">CrimeDetection</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
+    <string name="title_home">Shield</string>
+    <string name="title_dashboard">History</string>
     <string name="title_emergency">Emergency</string>
     <string name="title_profile">Profile</string>
     <string name="crime_safe">Safe</string>
@@ -42,8 +42,47 @@
     <string name="label_email">Email</string>
     <string name="label_family_num">Emergency Contact Number</string>
     <string name="label_password">Password</string>
+    <string name="error_first_name_required">First name is required</string>
+    <string name="error_last_name_required">Last name is required</string>
+    <string name="error_username_required">Username is required</string>
+    <string name="error_phone_required">Phone number is required</string>
+    <string name="error_email_required">Email is required</string>
+    <string name="error_invalid_email">Please enter a valid email</string>
+    <string name="error_emergency_phone_required">Emergency phone number is required</string>
+    <string name="error_emergency_phone_same">Emergency number must be different from your own number</string>
+    <string name="error_emergency_email_required">Emergency email is required</string>
+    <string name="error_password_required">Password is required</string>
+    <string name="error_password_too_short">Password must be at least 8 characters</string>
+    <string name="error_verify_phone_first">Please verify your phone number first</string>
+    <string name="error_verify_email_first">Please verify your email first</string>
+    <string name="msg_registration_success">Registration Successful</string>
+    <string name="msg_verification_success">Verification Successful</string>
+    <string name="error_invalid_otp">Invalid OTP</string>
+    <string name="error_otp_required">Please enter OTP</string>
+    <string name="error_enter_target">Please enter %1$s</string>
+    <string name="msg_otp_requested">OTP requested for %1$s</string>
+    <string name="error_otp_send_failed">Failed to send OTP. Check backend logs.</string>
+    <string name="msg_dev_otp_autofill">Development: OTP Auto-filled</string>
+    <string name="label_verified">Verified ✅</string>
+    <string name="msg_registration_failed">Registration failed</string>
+    <string name="msg_login_success">Login Successful</string>
+    <string name="error_fill_all_fields">Please fill all fields</string>
+    <string name="error_invalid_credentials">Invalid credentials</string>
+    <string name="error_incorrect_credentials">Incorrect email or password</string>
+    <string name="label_logging_in">Logging in...</string>
+    <string name="label_registering">Registering...</string>
+    <string name="msg_network_error">Network error: %1$s</string>
+    <string name="msg_error_format">Error: %1$s</string>
+
     <string name="btn_register">Register</string>
-    <string name="msg_has_account">Already have an account? Login</string>
+    <string name="btn_send_otp">Send OTP</string>
+    <string name="label_otp_code">OTP Code</string>
+    <string name="btn_verify_otp">Verify OTP</string>
+    <string name="btn_verify_email">Verify Email</string>
+    <string name="label_email_otp">Email OTP</string>
+    <string name="btn_verify_email_otp">Verify Email OTP</string>
+    <string name="label_emergency_email">Emergency Email</string>
+    <string name="msg_has_account">Already have an account? Sign In</string>
     <string name="desc_logout">Logout</string>
     <string name="label_realtime">Realtime</string>
     <string name="title_realtime">Real-time Detection</string>
@@ -84,7 +123,9 @@
     <string name="label_women_helpline">Women Helpline</string>
     <string name="label_fire_brigade">Fire Brigade</string>
     <string name="label_child_helpline">Child Helpline</string>
+    <string name="label_child_help">Child Helpline</string>
     <string name="label_ragging">Anti-Ragging</string>
+    <string name="label_anti_ragging">Anti-Ragging</string>
     <string name="btn_find_police">Find Nearby Police Station</string>
     <string name="title_login">Login</string>
     <string name="btn_login">Login</string>
@@ -105,5 +146,120 @@
     <string name="num_child_helpline">1098</string>
     <string name="num_anti_ragging">18001805522</string>
     <string name="btn_save_profile">Save Profile</string>
+    <string name="title_incident_history">Incident History</string>
+    <string name="filter_all">All</string>
+    <string name="filter_violent">Violent</string>
+    <string name="filter_non_violent">Non-Violent</string>
+    <string name="filter_date_range">Date Range</string>
+    <string name="btn_load_more">Load More</string>
+    <string name="no_incidents_found">No Incidents Found</string>
+    <string name="try_adjusting_filters">Try adjusting your filters or search query</string>
+    <string name="btn_reset_filters">Reset Filters</string>
+    <string name="title_emergency_hub">EMERGENCY HUB</string>
+    <string name="desc_trusted_contact">Quick access to your primary emergency contact</string>
+    <string name="btn_call_family_premium">CALL FAMILY NOW</string>
+    <string name="btn_share_whatsapp_premium">SHARE ON WHATSAPP</string>
+    <string name="label_quick_dial_services">QUICK DIAL SERVICES</string>
+    <string name="label_women_hub">WOMEN HUB</string>
+    <string name="btn_locate_police">LOCATE NEAREST POLICE</string>
+    <string name="label_admin_access">ADMIN ACCESS</string>
+    <string name="label_confidence">Confidence</string>
+    <string name="status_analyzed">Analyzed</string>
+    <string name="type_batch">BATCH</string>
+    <string name="type_realtime">REALTIME</string>
+    <string name="title_shield_dashboard">SHIELD AI</string>
+    <string name="msg_profile_synced">Profile synced with server</string>
+    <string name="msg_profile_local_only">Saved locally. Server sync failed.</string>
     <string name="msg_location_not_found">Location not found</string>
+    <string name="label_user_placeholder">User</string>
+    <string name="label_unknown_location">Unknown Location</string>
+    <string name="label_monitoring_active">Monitoring Active</string>
+    <string name="status_system_ready">SYSTEM READY</string>
+    <string name="btn_start_shield">START SHIELD</string>
+    <string name="btn_analysis">ANALYSIS</string>
+    <string name="label_analytics">ANALYTICS</string>
+    <string name="label_total">TOTAL</string>
+    <string name="label_violent">VIOLENT</string>
+    <string name="label_precision">PRECISION</string>
+    <string name="label_live">LIVE</string>
+    <string name="label_sos">SOS</string>
+    <string name="label_recent_incidents">RECENT INCIDENTS</string>
+    <string name="btn_to_top">To Top</string>
+    <string name="label_secure_access">Secure Access</string>
+    <string name="btn_terminate_session">TERMINATE SESSION</string>
+    <string name="title_profile_header">Profile</string>
+
+    <!-- Login & Register -->
+    <string name="label_shield_ai">SHIELD AI</string>
+    <string name="label_advanced_detection">ADVANCED CRIME DETECTION</string>
+    <string name="label_welcome_back">Welcome Back</string>
+    <string name="label_signin_continue">Sign in to continue monitoring</string>
+    <string name="btn_signin">SIGN IN</string>
+    <string name="label_create_account_prompt">New here? Create Account</string>
+
+    <string name="label_join_shield">Join Shield</string>
+    <string name="label_setup_security">Set up your security profile</string>
+    <string name="label_already_member">Already a member? Sign In</string>
+    <string name="btn_create_account">CREATE ACCOUNT</string>
+
+    <!-- Settings & Notifications -->
+    <string name="title_settings">SETTINGS</string>
+    <string name="label_notifications">Notifications</string>
+    <string name="label_enable_notifications">Enable Notifications</string>
+    <string name="label_notification_sound">Notification Sound</string>
+    <string name="label_vibration">Vibration</string>
+    <string name="label_alert_types">Alert Types</string>
+    <string name="label_violence_detections">Violence Detections</string>
+    <string name="label_admin_reviews">Admin Reviews</string>
+    <string name="label_about">About</string>
+    <string name="btn_privacy_policy">Privacy Policy</string>
+    <string name="btn_terms_conditions">Terms &amp; Conditions</string>
+    <string name="title_notifications">NOTIFICATIONS</string>
+    <string name="msg_no_notifications">No notifications yet</string>
+
+    <!-- Emergency & Dashboard Updates -->
+    <string name="error_location_unavailable">Location unavailable. Please enable GPS.</string>
+    <string name="error_no_number_provided">No number provided</string>
+    <string name="error_set_emergency_number">Please set an emergency number first</string>
+    <string name="msg_emergency_whatsapp">EMERGENCY! I need help.</string>
+    <string name="msg_whatsapp_initiated">WhatsApp message initiated</string>
+    <string name="msg_whatsapp_not_installed">WhatsApp is not installed</string>
+    <string name="label_realtime_suffix"> (Real-time)</string>
+
+    <!-- Incident History & Details -->
+    <string name="title_select_date_range">Select Date Range</string>
+    <string name="hint_search_video">Search video name...</string>
+    <string name="error_invalid_incident_id">Invalid Incident ID</string>
+    <string name="msg_sharing">Sharing...</string>
+    <string name="msg_downloading">Downloading...</string>
+    <string name="error_load_details_failed">Failed to load details</string>
+    <string name="label_unknown_video">Unknown Video</string>
+    <string name="error_no_video_available">No video available</string>
+    <string name="msg_incident_deleted">Incident deleted</string>
+    <string name="msg_deleting_incident">Deleting incident %1$d...</string>
+    <string name="btn_delete_confirm">Delete</string>
+    <string name="label_coordinates_format">Lat: %1$.6f, Long: %2$.6f</string>
+    <string name="label_incident_id_format">ID: %1$s</string>
+
+    <!-- Admin Dashboard -->
+    <string name="msg_feature_coming_soon">%1$s coming soon</string>
+    <string name="error_dashboard_load_failed">Failed to load dashboard data</string>
+    <string name="label_chart_detections">Detections</string>
+    <string name="label_user_action_format">%1$s: %2$s</string>
+
+    <!-- Realtime Activity Updates -->
+    <string name="label_live_status">🔴 LIVE</string>
+    <string name="label_ready_status">⏸️ READY</string>
+    <string name="label_server_fps_format">%.1f FPS (S)</string>
+    <string name="label_server_buffer_format">Server Buffer: %d</string>
+    <string name="label_processing_batch">Processing Batch...</string>
+    <string name="label_syncing_format">Syncing: %1$s</string>
+    <string name="msg_violence_alert_details">VIOLENCE DETECTED: Emergency contacts are being alerted.</string>
+
+    <!-- Batch Upload Activity Updates -->
+    <string name="error_video_size_limit">Video exceeds 500MB limit</string>
+    <string name="error_unsupported_format">Unsupported video format</string>
+    <string name="title_cancel_upload">Cancel Upload</string>
+    <string name="msg_cancel_upload_confirm">Are you sure you want to cancel the video upload?</string>
+    <string name="label_seconds_format">%.1fs</string>
 </resources>

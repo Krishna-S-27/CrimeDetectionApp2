@@ -82,6 +82,7 @@
         <activity android:name=".activities.IncidentDetailsActivity" />
         <activity android:name=".activities.EmergencyActivity" />
         <activity android:name=".activities.EmergencyContactsActivity" />
+        <activity android:name=".activities.NotificationsActivity" />
         <activity
             android:name=".activities.RealtimeActivity"
             android:exported="true"

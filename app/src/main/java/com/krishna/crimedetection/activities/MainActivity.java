@@ -17,6 +17,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -90,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private VideoCapture<Recorder> videoCapture;
     private Recording recording;
     private File videoFile;
+    private TranslateAnimation scanAnimation;
 
     // ===================== VIEWMODEL & LOCATION =====================
 
@@ -109,6 +113,17 @@ public class MainActivity extends AppCompatActivity {
                         if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                             android.net.Uri selectedVideoUri = result.getData().getData();
                             if (selectedVideoUri != null) {
+                                try {
+                                    final int takeFlags = result.getData().getFlags()
+                                            & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                                    try {
+                                        getContentResolver().takePersistableUriPermission(selectedVideoUri, takeFlags);
+                                    } catch (SecurityException e) {
+                                        Log.w("MainActivity", "Failed to take persistable permission");
+                                    }
+                                } catch (Exception e) {
+                                    Log.e("MainActivity", "Error taking persistable permission", e);
+                                }
                                 handleSelectedVideo(selectedVideoUri);
                             }
                         }
@@ -138,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setTitle(R.string.app_name);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
         // Initialize location client
@@ -158,10 +173,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Setup button click listeners
+        binding.btnNotifications.setOnClickListener(v -> startActivity(new Intent(this, NotificationsActivity.class)));
+
         binding.btnLogout.setOnClickListener(v -> {
-            tokenManager.logout();
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            openOptionsMenu();
         });
 
         binding.btnQuickRealtime.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RealtimeActivity.class)));
@@ -326,7 +341,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_server_settings) {
+        if (id == R.id.action_notifications) {
+            startActivity(new Intent(this, NotificationsActivity.class));
+            return true;
+        } else if (id == R.id.action_server_settings) {
             showServerSettingsDialog();
             return true;
         } else if (id == R.id.action_settings) {
@@ -545,6 +563,7 @@ public class MainActivity extends AppCompatActivity {
         binding.fabAction.setText(R.string.btn_stop);
         binding.fabAction.setIconResource(android.R.drawable.ic_media_pause);
         binding.statusOverlay.setVisibility(View.VISIBLE);
+        startScanningAnimation();
 
         // Create video file
         videoFile = new File(getExternalFilesDir(null), "crime_" + System.currentTimeMillis() + ".mp4");
@@ -589,6 +608,28 @@ public class MainActivity extends AppCompatActivity {
         binding.fabAction.setText(R.string.btn_start);
         binding.fabAction.setIconResource(android.R.drawable.ic_media_play);
         binding.statusOverlay.setVisibility(View.GONE);
+        stopScanningAnimation();
+    }
+
+    private void startScanningAnimation() {
+        binding.scanLine.setVisibility(View.VISIBLE);
+        if (scanAnimation == null) {
+            scanAnimation = new TranslateAnimation(
+                    Animation.RELATIVE_TO_PARENT, 0f,
+                    Animation.RELATIVE_TO_PARENT, 0f,
+                    Animation.RELATIVE_TO_PARENT, 0f,
+                    Animation.RELATIVE_TO_PARENT, 0.95f
+            );
+            scanAnimation.setDuration(2000);
+            scanAnimation.setRepeatCount(Animation.INFINITE);
+            scanAnimation.setRepeatMode(Animation.REVERSE);
+        }
+        binding.scanLine.startAnimation(scanAnimation);
+    }
+
+    private void stopScanningAnimation() {
+        binding.scanLine.clearAnimation();
+        binding.scanLine.setVisibility(View.GONE);
     }
 
     /**
@@ -609,8 +650,9 @@ public class MainActivity extends AppCompatActivity {
      * Open video picker from gallery
      */
     private void openVideoPicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setDataAndType(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "video/*");
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("video/*");
         videoPickerLauncher.launch(intent);
     }
 
@@ -666,8 +708,10 @@ public class MainActivity extends AppCompatActivity {
             binding.resultCard.setStrokeWidth(2);
             binding.resultCard.setStrokeColor(Color.RED);
             triggerHapticFeedback();
+            
+            Intent intent = new Intent(this, IncidentHistoryActivity.class);
             NotificationUtils.showNotification(this, "🚨 CRIME DETECTED",
-                    getString(R.string.confidence_format, confidence * 100));
+                    getString(R.string.confidence_format, confidence * 100), intent);
         } else {
             binding.resultCard.setStrokeWidth(2);
             binding.resultCard.setStrokeColor(ContextCompat.getColor(this, R.color.crime_safe));

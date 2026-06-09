@@ -209,7 +209,7 @@ public class IncidentHistoryActivity extends AppCompatActivity implements Incide
 
     private void showDateRangePicker() {
         MaterialDatePicker<Pair<Long, Long>> picker = MaterialDatePicker.Builder.dateRangePicker()
-                .setTitleText("Select Date Range")
+                .setTitleText(R.string.title_select_date_range)
                 .build();
 
         picker.addOnPositiveButtonClickListener(selection -> {
@@ -229,7 +229,7 @@ public class IncidentHistoryActivity extends AppCompatActivity implements Incide
         
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setQueryHint("Search video name...");
+        searchView.setQueryHint(getString(R.string.hint_search_video));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -289,8 +289,8 @@ public class IncidentHistoryActivity extends AppCompatActivity implements Incide
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.delete_incident_title)
                 .setMessage(R.string.delete_incident_msg)
-                .setPositiveButton("Delete", (dialog, which) -> deleteIncident(incident))
-                .setNegativeButton("Cancel", (dialog, which) -> adapter.notifyItemChanged(position))
+                .setPositiveButton(R.string.btn_delete_confirm, (dialog, which) -> deleteIncident(incident))
+                .setNegativeButton(R.string.clear, (dialog, which) -> adapter.notifyItemChanged(position))
                 .setOnCancelListener(dialog -> adapter.notifyItemChanged(position))
                 .show();
     }
@@ -303,7 +303,7 @@ public class IncidentHistoryActivity extends AppCompatActivity implements Incide
     private void deleteIncident(IncidentResponse incident) {
         // Since we don't have a direct delete endpoint in ApiService yet, 
         // this is a placeholder for the API call
-        Toast.makeText(this, "Deleting incident " + incident.getId() + "...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.msg_deleting_incident, incident.getId()), Toast.LENGTH_SHORT).show();
         
         // Optimistically remove from UI
         adapter.removeIncident(incident);

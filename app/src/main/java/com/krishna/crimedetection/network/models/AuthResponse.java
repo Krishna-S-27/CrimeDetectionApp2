@@ -29,10 +29,16 @@ public class AuthResponse {
         private String username;
         private String email;
         private String role;
+        @SerializedName("phone_number")
+        private String phoneNumber;
+        @SerializedName("emergency_contact")
+        private String emergencyContact;
 
         public int getId() { return id; }
         public String getUsername() { return username; }
         public String getEmail() { return email; }
         public String getRole() { return role; }
+        public String getPhoneNumber() { return phoneNumber; }
+        public String getEmergencyContact() { return emergencyContact; }
     }
 }

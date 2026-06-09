@@ -30,7 +30,7 @@ public class FileUtils {
 
     public static String getFileNameFromUri(Context context, Uri uri) {
         String result = null;
-        if (uri.getScheme().equals("content")) {
+        if (uri.getScheme() != null && uri.getScheme().equals("content")) {
             try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
                     int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
@@ -38,6 +38,8 @@ public class FileUtils {
                         result = cursor.getString(index);
                     }
                 }
+            } catch (SecurityException e) {
+                e.printStackTrace();
             }
         }
         if (result == null) {
@@ -58,6 +60,8 @@ public class FileUtils {
                     return cursor.getLong(index);
                 }
             }
+        } catch (SecurityException e) {
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,6 +81,9 @@ public class FileUtils {
             retriever.setDataSource(context, uri);
             String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             return Long.parseLong(time);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            return 0;
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
@@ -106,6 +113,9 @@ public class FileUtils {
         try {
             retriever.setDataSource(context, uri);
             return retriever.getFrameAtTime(1000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

@@ -77,8 +77,6 @@ DashboardActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
                 return true;
             } else if (id == R.id.nav_dashboard) {
-                startActivity(new Intent(this, IncidentHistoryActivity.class));
-                overridePendingTransition(0, 0);
                 return true;
             } else if (id == R.id.nav_emergency) {
                 startActivity(new Intent(this, EmergencyActivity.class));
@@ -115,9 +113,9 @@ DashboardActivity extends AppCompatActivity {
             holder.tvConfidence.setText(String.format("%.1f%%", r.getConfidence() * 100));
             holder.tvTimestamp.setText(TimeUtils.formatTimestamp(r.getTimestamp()));
 
-            String locationText = String.format("Location: %.4f, %.4f", r.getLatitude(), r.getLongitude());
+            String locationText = holder.itemView.getContext().getString(R.string.location_format, r.getLatitude(), r.getLongitude());
             if ("realtime".equalsIgnoreCase(r.getDetectionType())) {
-                locationText += " (Real-time)";
+                locationText += holder.itemView.getContext().getString(R.string.label_realtime_suffix);
             }
             holder.tvLocation.setText(locationText);
 

@@ -45,7 +45,7 @@ public class IncidentDetailsActivity extends AppCompatActivity {
 
         incidentId = getIntent().getIntExtra(EXTRA_INCIDENT_ID, -1);
         if (incidentId == -1) {
-            Toast.makeText(this, "Invalid Incident ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_invalid_incident_id, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -59,12 +59,12 @@ public class IncidentDetailsActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Incident Details");
+            getSupportActionBar().setTitle(R.string.title_incident_history);
         }
 
         binding.btnDelete.setOnClickListener(v -> confirmDelete());
-        binding.btnShare.setOnClickListener(v -> Toast.makeText(this, "Sharing...", Toast.LENGTH_SHORT).show());
-        binding.btnDownload.setOnClickListener(v -> Toast.makeText(this, "Downloading...", Toast.LENGTH_SHORT).show());
+        binding.btnShare.setOnClickListener(v -> Toast.makeText(this, R.string.msg_sharing, Toast.LENGTH_SHORT).show());
+        binding.btnDownload.setOnClickListener(v -> Toast.makeText(this, R.string.msg_downloading, Toast.LENGTH_SHORT).show());
     }
 
     private void loadIncidentDetails() {
@@ -74,13 +74,13 @@ public class IncidentDetailsActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     displayIncident(response.body());
                 } else {
-                    Toast.makeText(IncidentDetailsActivity.this, "Failed to load details", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(IncidentDetailsActivity.this, R.string.error_load_details_failed, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<IncidentResponse> call, Throwable t) {
-                Toast.makeText(IncidentDetailsActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(IncidentDetailsActivity.this, getString(R.string.msg_network_error, t.getMessage()), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -97,14 +97,14 @@ public class IncidentDetailsActivity extends AppCompatActivity {
         binding.tvTimestamp.setText(incident.getTimestamp());
         binding.chipType.setText(incident.getDetectionType() != null ? incident.getDetectionType().toUpperCase() : "UNKNOWN");
         
-        binding.tvCoordinates.setText(String.format(Locale.US, "Lat: %.6f, Long: %.6f", 
+        binding.tvCoordinates.setText(getString(R.string.label_coordinates_format, 
                 incident.getLatitude(), incident.getLongitude()));
 
         setupVideoPlayer(incident.getVideoPath());
     }
 
     private String getVideoFileName(String path) {
-        if (path == null) return "Unknown Video";
+        if (path == null) return getString(R.string.label_unknown_video);
         int lastSlash = path.lastIndexOf("/");
         return lastSlash != -1 ? path.substring(lastSlash + 1) : path;
     }
@@ -112,7 +112,7 @@ public class IncidentDetailsActivity extends AppCompatActivity {
     private void setupVideoPlayer(String videoPath) {
         if (videoPath == null || videoPath.isEmpty()) {
             binding.videoProgressBar.setVisibility(View.GONE);
-            Toast.makeText(this, "No video available", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_no_video_available, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -140,12 +140,12 @@ public class IncidentDetailsActivity extends AppCompatActivity {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.delete_incident_title)
                 .setMessage(R.string.delete_incident_msg)
-                .setPositiveButton("Delete", (dialog, which) -> {
+                .setPositiveButton(R.string.btn_delete_confirm, (dialog, which) -> {
                     // API call to delete (placeholder)
-                    Toast.makeText(this, "Incident deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.msg_incident_deleted, Toast.LENGTH_SHORT).show();
                     finish();
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.clear, null)
                 .show();
     }
 

@@ -21,11 +21,11 @@ public class ApiClient {
 
     /**
      * Get Retrofit instance. Used by classes that need direct access to Retrofit.
-     * Defaults to 10.0.2.2 for emulator.
+     * Defaults to 10.20.51.215 for local server.
      */
     public static Retrofit getClient() {
         if (retrofit == null) {
-            getService("http://10.0.2.2:8000/");
+            getService("http://10.20.51.215:8000/");
         }
         return retrofit;
     }
@@ -36,17 +36,11 @@ public class ApiClient {
         return retrofit;
     }
 
-    /**
-     * Get ApiService instance with specified base URL
-     * Creates new Retrofit instance if URL changed
-     *
-     * @param baseUrl Server URL (e.g., "http://192.168.1.15:8000")
-     * @return ApiService interface for making calls
-     */
+
     public static ApiService getService(String baseUrl) {
         // Ensure baseUrl is not null or empty
         if (baseUrl == null || baseUrl.isEmpty()) {
-            baseUrl = "http://10.0.2.2:8000/"; // Default fallback
+            baseUrl = "http://10.20.51.215:8000/"; // Default fallback
         }
 
         // Add scheme if missing

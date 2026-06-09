@@ -251,6 +251,9 @@ public class ViolenceDetectionManager {
             Log.d(TAG, "✓ File created: " + tempFile.getAbsolutePath());
             return tempFile;
 
+        } catch (SecurityException e) {
+            Log.e(TAG, "Security error converting URI to File (permission denied): " + e.getMessage());
+            return null;
         } catch (Exception e) {
             Log.e(TAG, "Error converting URI to File: " + e.getMessage());
             return null;

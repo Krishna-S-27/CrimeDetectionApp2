@@ -150,18 +150,18 @@ public class RealtimeActivity extends AppCompatActivity implements
             if (isRecording) {
                 binding.btnStartStop.setText(R.string.btn_stop_detection);
                 binding.btnStartStop.setIconResource(android.R.drawable.ic_media_pause);
-                binding.tvStatus.setText("🔴 LIVE");
+                binding.tvStatus.setText(R.string.label_live_status);
                 binding.tvStatus.setBackgroundResource(R.drawable.status_badge_bg_red);
             } else {
                 binding.btnStartStop.setText(R.string.btn_start_detection);
                 binding.btnStartStop.setIconResource(android.R.drawable.ic_media_play);
-                binding.tvStatus.setText("⏸️ READY");
+                binding.tvStatus.setText(R.string.label_ready_status);
                 binding.tvStatus.setBackgroundResource(R.drawable.status_badge_bg);
             }
         });
 
         viewModel.getCurrentPrediction().observe(this, prediction -> {
-            binding.tvPrediction.setText("Prediction: " + prediction);
+            binding.tvPrediction.setText(getString(R.string.prediction_format, prediction));
             if ("VIOLENT".equalsIgnoreCase(prediction)) {
                 binding.tvPrediction.setTextColor(getColor(R.color.red_alert));
                 binding.progressBar.setIndicatorColor(getColor(R.color.red_alert));
@@ -177,20 +177,20 @@ public class RealtimeActivity extends AppCompatActivity implements
         });
 
         viewModel.getTotalFrames().observe(this, frames -> {
-            binding.tvFrameCount.setText("Frames: " + frames);
-            binding.tvLastUpdate.setText("Last: " + TimeUtils.getCurrentTimestamp());
+            binding.tvFrameCount.setText(getString(R.string.label_frames_default).replace("0", String.valueOf(frames)));
+            binding.tvLastUpdate.setText(getString(R.string.label_last_update_default).replace("N/A", TimeUtils.getCurrentTimestamp()));
         });
 
         viewModel.getViolentDetections().observe(this, count -> {
-            binding.tvDetectionCount.setText("Violence Detections: " + count);
+            binding.tvDetectionCount.setText(getString(R.string.label_detections_format, count));
         });
 
         viewModel.getBackendFps().observe(this, fps -> {
-            binding.tvFPS.setText(String.format(Locale.getDefault(), "%.1f FPS (S)", fps));
+            binding.tvFPS.setText(getString(R.string.label_server_fps_format, fps));
         });
 
         viewModel.getBackendBufferCount().observe(this, count -> {
-            binding.tvBufferSize.setText("Server Buffer: " + count);
+            binding.tvBufferSize.setText(getString(R.string.label_server_buffer_format, count));
         });
 
         viewModel.getDetectionStatus().observe(this, status -> {
@@ -207,7 +207,7 @@ public class RealtimeActivity extends AppCompatActivity implements
                 if (currentPred != null && currentPred.alertMessage != null) {
                     binding.tvAlertMessage.setText(currentPred.alertMessage);
                 } else {
-                    binding.tvAlertMessage.setText("VIOLENCE DETECTED: Emergency contacts are being alerted.");
+                    binding.tvAlertMessage.setText(R.string.msg_violence_alert_details);
                 }
                 binding.statusOverlay.setBackgroundColor(android.graphics.Color.parseColor("#80FF0000"));
                 triggerHapticFeedback();
@@ -268,18 +268,18 @@ public class RealtimeActivity extends AppCompatActivity implements
     @Override
     public void onFrameProcessed(int bufferSize, int totalCaptured, float fps) {
         runOnUiThread(() -> {
-            binding.tvBufferSize.setText("Buffer: " + bufferSize + "/16");
-            binding.tvFrameCount.setText("Frames: " + totalCaptured);
-            binding.tvFPS.setText(String.format(Locale.getDefault(), "%.1f FPS", fps));
+            binding.tvBufferSize.setText(getString(R.string.label_buffer_default).replace("0/16", bufferSize + "/16"));
+            binding.tvFrameCount.setText(getString(R.string.label_frames_default).replace("0", String.valueOf(totalCaptured)));
+            binding.tvFPS.setText(getString(R.string.label_fps_format, fps));
             
             // Sync with ViewModel
             viewModel.updateFrameCount(totalCaptured);
             
             // Show that we are actively sending frames
             if (totalCaptured % 16 == 0) {
-                binding.tvLastUpdate.setText("Processing Batch...");
+                binding.tvLastUpdate.setText(R.string.label_processing_batch);
             } else if (totalCaptured % 5 == 0) {
-                binding.tvLastUpdate.setText("Syncing: " + TimeUtils.getCurrentTimestamp());
+                binding.tvLastUpdate.setText(getString(R.string.label_syncing_format, TimeUtils.getCurrentTimestamp()));
             }
         });
     }

@@ -5,7 +5,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="@drawable/bg_main_premium"
     tools:context=".activities.RealtimeActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -19,7 +19,10 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@string/title_realtime"
-            app:titleCentered="true">
+            app:titleCentered="true"
+            app:titleTextColor="@color/text_primary"
+            app:navigationIcon="@drawable/ic_back"
+            app:navigationIconTint="@color/text_primary">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnHistory"
@@ -27,20 +30,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:text="@string/label_history_btn" />
+                android:layout_marginEnd="16dp"
+                android:text="@string/label_history_btn"
+                android:textColor="@color/colorPrimary" />
         </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingBottom="100dp"
+        android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
             <!-- Camera Preview Card -->
             <com.google.android.material.card.MaterialCardView
@@ -48,7 +55,7 @@
                 android:layout_height="400dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
-                app:strokeColor="?attr/colorOutlineVariant"
+                app:strokeColor="@color/glass_border"
                 app:strokeWidth="1dp">
 
                 <androidx.camera.view.PreviewView
@@ -62,6 +69,15 @@
                     android:layout_height="match_parent"
                     android:background="#40FF0000"
                     android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/scanLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:src="@drawable/ic_scan_line"
+                    android:visibility="gone"
+                    android:scaleType="fitXY"
+                    android:contentDescription="@null" />
 
                 <TextView
                     android:id="@+id/tvStatus"
@@ -82,16 +98,18 @@
                 android:id="@+id/resultCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
+                app:cardBackgroundColor="@color/glass_white"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/glass_border"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -105,6 +123,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/label_prediction_default"
+                            android:textColor="@color/text_primary"
                             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
                             android:textStyle="bold" />
 
@@ -114,7 +133,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/label_confidence_default"
                             android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-                            android:textColor="?attr/colorPrimary"
+                            android:textColor="@color/colorPrimary"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -122,15 +141,17 @@
                         android:id="@+id/progressBar"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:progress="0"
+                        app:indicatorColor="@color/colorPrimary"
+                        app:trackColor="@color/glass_white"
                         app:trackCornerRadius="4dp"
                         app:trackThickness="8dp" />
 
                     <GridLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="20dp"
                         android:columnCount="2"
                         android:rowCount="2">
 
@@ -140,6 +161,7 @@
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
                             android:text="@string/label_frames_default"
+                            android:textColor="@color/text_secondary"
                             android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
                         <TextView
@@ -149,6 +171,7 @@
                             android:layout_columnWeight="1"
                             android:gravity="end"
                             android:text="@string/label_buffer_default"
+                            android:textColor="@color/text_secondary"
                             android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
                         <TextView
@@ -156,8 +179,9 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="8dp"
                             android:text="@string/label_last_update_default"
+                            android:textColor="@color/text_secondary"
                             android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
 
                         <TextView
@@ -165,9 +189,10 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_columnWeight="1"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="8dp"
                             android:gravity="end"
                             android:text="@string/label_fps_format"
+                            android:textColor="@color/text_secondary"
                             android:textAppearance="@style/TextAppearance.Material3.BodySmall" />
                     </GridLayout>
                 </LinearLayout>
@@ -179,9 +204,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/glass_white"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/glass_border"
+                app:strokeWidth="1dp">
 
                 <TextView
                     android:id="@+id/tvDetectionCount"
@@ -192,38 +219,45 @@
                     android:padding="16dp"
                     android:text="@string/label_detections_format"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColor="?attr/colorError"
+                    android:textColor="@color/colorAccent"
                     android:textStyle="bold"
                     app:drawableStartCompat="@android:drawable/ic_dialog_alert"
-                    app:drawableTint="?attr/colorError" />
+                    app:drawableTint="@color/colorAccent" />
 
             </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="28dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnStartStop"
                     android:layout_width="0dp"
-                    android:layout_height="64dp"
+                    android:layout_height="60dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="@string/btn_start_detection"
-                    app:cornerRadius="16dp"
+                    android:textStyle="bold"
+                    android:backgroundTint="@android:color/transparent"
+                    android:background="@drawable/btn_premium"
                     app:icon="@android:drawable/ic_media_play" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRecord"
-                    style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"
-                    android:layout_height="64dp"
+                    android:layout_height="60dp"
                     android:layout_weight="1"
                     android:text="@string/btn_start_recording"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/glass_white"
+                    app:strokeColor="@color/glass_border"
+                    app:strokeWidth="1dp"
                     app:cornerRadius="16dp"
-                    app:icon="@android:drawable/ic_menu_camera" />
+                    app:icon="@android:drawable/ic_menu_camera"
+                    app:iconTint="@color/text_primary" />
             </LinearLayout>
 
         </LinearLayout>
@@ -237,7 +271,7 @@
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
         android:visibility="gone"
-        app:cardBackgroundColor="?attr/colorError"
+        app:cardBackgroundColor="@color/colorAccent"
         app:cardCornerRadius="24dp"
         app:cardElevation="12dp">
 
@@ -253,7 +287,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/alert_violence_detected"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                android:textColor="?attr/colorOnError"
+                android:textColor="@color/white"
                 android:textStyle="bold" />
 
             <com.google.android.material.button.MaterialButton
@@ -263,8 +297,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/btn_dismiss"
-                app:backgroundTint="?attr/colorOnError"
-                android:textColor="?attr/colorError" />
+                app:backgroundTint="@color/white"
+                android:textColor="@color/colorAccent" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

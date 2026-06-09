@@ -18,8 +18,8 @@
         <item name="colorOnTertiary">@color/colorOnTertiary</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorSurface</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
 
         <!-- Custom background and surface colors -->
         <item name="android:colorBackground">@color/colorBackground</item>
@@ -33,9 +33,9 @@
     </style>
 
     <style name="Widget.App.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
-        <item name="labelVisibilityMode">labeled</item>
-        <item name="itemIconTint">@color/bottom_nav_colors</item>
-        <item name="itemTextColor">@color/bottom_nav_colors</item>
+        <item name="labelVisibilityMode">unlabeled</item>
+        <item name="itemIconTint">@color/text_primary</item>
+        <item name="itemTextColor">@color/text_primary</item>
         <item name="itemRippleColor">@color/colorSecondaryContainer</item>
         <item name="backgroundTint">?attr/colorSurface</item>
     </style>

@@ -105,7 +105,11 @@ public class AlertManager {
     private void showNotification(float confidence) {
         String title = "⚠️ Violence Detected!";
         String message = String.format("Confidence: %.1f%%", confidence * 100);
-        com.krishna.crimedetection.utils.NotificationUtils.showNotification(context, title, message);
+        
+        android.content.Intent intent = new android.content.Intent(context, com.krishna.crimedetection.activities.IncidentHistoryActivity.class);
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+        
+        com.krishna.crimedetection.utils.NotificationUtils.showNotification(context, title, message, intent);
     }
 
     /**

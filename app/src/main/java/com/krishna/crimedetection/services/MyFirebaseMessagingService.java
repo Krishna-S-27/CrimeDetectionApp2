@@ -48,13 +48,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent intent;
         if (message.getData().containsKey("incidentId")) {
             intent = new Intent(this, IncidentDetailsActivity.class);
-            intent.putExtra("incident_id", Integer.parseInt(message.getData().get("incidentId")));
+            intent.putExtra(IncidentDetailsActivity.EXTRA_INCIDENT_ID, Integer.parseInt(message.getData().get("incidentId")));
         } else {
             intent = new Intent(this, com.krishna.crimedetection.activities.MainActivity.class);
         }
         
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         
-        NotificationHandler.showLocalNotification(this, title, body, intent);
+        com.krishna.crimedetection.utils.NotificationUtils.showNotification(this, title, body, intent);
     }
 }

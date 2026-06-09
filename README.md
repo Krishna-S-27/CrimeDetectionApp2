@@ -7,7 +7,8 @@ An AI-powered Android application designed to detect violence and criminal activ
 *   **Media Upload**: Select existing videos from the gallery for analysis.
 *   **AI Analysis**: Real-time violence detection (Violent vs. Non-Violent) with confidence scores.
 *   **Local History**: Saves all detection results locally using a Room Database.
-*   **Emergency Integration**: Automated SMS alerts and manual WhatsApp location sharing.
+*   
+* **Emergency Integration**: Automated SMS alerts and manual WhatsApp location sharing.
 *   **Report Generation**: Generate comprehensive PDF reports of criminal activities and statistical analysis.
 *   **Stealth Mode**: Background recording and notification-based alerts.
 

@@ -143,6 +143,9 @@ public class RecordingForegroundService extends LifecycleService implements Real
         return isRecordingVideo;
     }
 
+    private long lastSafeNotificationTime = 0;
+    private static final long SAFE_NOTIF_COOLDOWN = 120000; // 2 minutes
+
     @Override
     public void onPredictionReceived(Prediction prediction, double inferenceTimeMs) {
         if (listener != null) {
@@ -165,6 +168,16 @@ public class RecordingForegroundService extends LifecycleService implements Real
             NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm != null) {
                 nm.notify(1001, NotificationUtils.buildForegroundNotification(this, "Real-time detection active (Safe)", false));
+            }
+
+            // Delayed notification for non-violent detections (Only during real-time sessions)
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastSafeNotificationTime > SAFE_NOTIF_COOLDOWN) {
+                lastSafeNotificationTime = currentTime;
+                Intent intent = new Intent(this, com.krishna.crimedetection.activities.IncidentHistoryActivity.class);
+                NotificationUtils.showNotification(this, "✅ Safe Environment",
+                        "No violence detected. Confidence: " + prediction.getConfidencePercent(),
+                        intent, 10000); // 10-second delay
             }
         }
     }
@@ -231,5 +244,12 @@ public class RecordingForegroundService extends LifecycleService implements Real
         }
         super.onDestroy();
         Log.d(TAG, "Service Destroyed");
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        // Stop service when app is swiped away to prevent "stuck" instances
+        stopSelf();
+        super.onTaskRemoved(rootIntent);
     }
 }

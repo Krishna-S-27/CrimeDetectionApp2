@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground">
+    android:background="@drawable/bg_main_premium">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -15,9 +15,9 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="@string/title_emergency"
+            app:title="@string/title_emergency_hub"
             app:titleCentered="true"
-            app:titleTextColor="?attr/colorOnSurface" />
+            app:titleTextColor="@color/text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -34,19 +34,16 @@
             android:padding="20dp">
 
             <!-- Family Emergency Card -->
-            <com.google.android.material.card.MaterialCardView
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="28dp"
-                app:cardCornerRadius="28dp"
-                app:cardElevation="2dp"
-                app:strokeColor="#1E293B"
-                app:strokeWidth="1dp">
+                android:background="@drawable/glass_card_bg"
+                android:padding="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#F8FAFC"
                     android:orientation="vertical"
                     android:padding="24dp">
 
@@ -54,7 +51,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/label_trusted_contact"
-                        android:textColor="#1E293B"
+                        android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -62,8 +59,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="@string/desc_family_num"
-                        android:textColor="#64748B"
+                        android:text="@string/desc_trusted_contact"
+                        android:textColor="@color/text_secondary"
                         android:textSize="14sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -72,17 +69,19 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
                         android:hint="@string/label_family_num"
-                        app:boxStrokeColor="#6366F1"
-                        app:hintTextColor="#6366F1"
+                        app:boxStrokeColor="@color/colorPrimary"
+                        app:hintTextColor="@color/colorPrimary"
                         app:startIconDrawable="@android:drawable/ic_menu_call"
-                        app:startIconTint="#6366F1">
+                        app:startIconTint="@color/colorPrimary"
+                        app:placeholderTextColor="@color/text_secondary"
+                        android:textColorHint="@color/text_secondary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etFamilyNum"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="phone"
-                            android:textColor="#1E293B" />
+                            android:textColor="@color/text_primary" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -90,39 +89,41 @@
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:layout_marginTop="16dp"
-                        android:text="@string/btn_call_family_now"
+                        android:text="@string/btn_call_family_premium"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        app:backgroundTint="#6366F1"
-                        app:cornerRadius="16dp"
+                        android:backgroundTint="@android:color/transparent"
+                        android:background="@drawable/btn_premium"
                         app:icon="@android:drawable/ic_menu_call"
                         app:iconSize="20dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnShareWhatsApp"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:layout_marginTop="12dp"
-                        android:text="@string/btn_share_whatsapp"
-                        android:textColor="#25D366"
+                        android:text="@string/btn_share_whatsapp_premium"
+                        android:textColor="@color/text_primary"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         app:cornerRadius="16dp"
+                        app:backgroundTint="@color/glass_white"
+                        app:strokeColor="@color/glass_border"
+                        app:strokeWidth="1dp"
                         app:icon="@drawable/ic_whatsapp"
                         app:iconSize="20dp"
-                        app:iconTint="#25D366"
-                        app:strokeColor="#25D366" />
+                        app:iconTint="#25D366" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:text="@string/label_quick_dial"
-                android:textColor="#1E293B"
-                android:textSize="20sp"
+                android:text="@string/label_quick_dial_services"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:letterSpacing="0.2"
                 android:textStyle="bold" />
 
             <GridLayout
@@ -130,8 +131,7 @@
                 android:layout_height="wrap_content"
                 android:alignmentMode="alignMargins"
                 android:columnCount="2"
-                android:columnOrderPreserved="false"
-                android:rowCount="3">
+                android:columnOrderPreserved="false">
 
                 <!-- Police Card -->
                 <com.google.android.material.card.MaterialCardView
@@ -143,15 +143,14 @@
                     android:layout_margin="8dp"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_white"
                     app:cardCornerRadius="24dp"
-                    app:cardElevation="2dp"
-                    app:strokeColor="#E2E8F0"
+                    app:strokeColor="@color/glass_border"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#F1F5F9"
                         android:gravity="center"
                         android:orientation="vertical">
 
@@ -159,14 +158,14 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@drawable/ic_police"
-                            app:tint="#0F172A" />
+                            app:tint="@color/text_primary" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:text="@string/label_police"
-                            android:textColor="#0F172A"
+                            android:textColor="@color/text_primary"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -181,15 +180,14 @@
                     android:layout_margin="8dp"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_white"
                     app:cardCornerRadius="24dp"
-                    app:cardElevation="2dp"
-                    app:strokeColor="#E2E8F0"
+                    app:strokeColor="@color/glass_border"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#FEF2F2"
                         android:gravity="center"
                         android:orientation="vertical">
 
@@ -197,14 +195,14 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@drawable/ic_ambulance"
-                            app:tint="#EF4444" />
+                            app:tint="@color/colorAccent" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:text="@string/label_ambulance"
-                            android:textColor="#EF4444"
+                            android:textColor="@color/text_primary"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -219,15 +217,14 @@
                     android:layout_margin="8dp"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_white"
                     app:cardCornerRadius="24dp"
-                    app:cardElevation="2dp"
-                    app:strokeColor="#E2E8F0"
+                    app:strokeColor="@color/glass_border"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#FAF5FF"
                         android:gravity="center"
                         android:orientation="vertical">
 
@@ -235,14 +232,14 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@drawable/ic_women"
-                            app:tint="#9333EA" />
+                            app:tint="#E879F9" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:text="@string/label_women_helpline"
-                            android:textColor="#9333EA"
+                            android:text="@string/label_women_hub"
+                            android:textColor="@color/text_primary"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -257,15 +254,14 @@
                     android:layout_margin="8dp"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_white"
                     app:cardCornerRadius="24dp"
-                    app:cardElevation="2dp"
-                    app:strokeColor="#E2E8F0"
+                    app:strokeColor="@color/glass_border"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#FFF7ED"
                         android:gravity="center"
                         android:orientation="vertical">
 
@@ -273,19 +269,19 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@drawable/ic_fire"
-                            app:tint="#F97316" />
+                            app:tint="#FB923C" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:text="@string/label_fire_brigade"
-                            android:textColor="#F97316"
+                            android:textColor="@color/text_primary"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Child Card -->
+                <!-- Child Help Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardChild"
                     android:layout_width="0dp"
@@ -295,15 +291,14 @@
                     android:layout_margin="8dp"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_white"
                     app:cardCornerRadius="24dp"
-                    app:cardElevation="2dp"
-                    app:strokeColor="#E2E8F0"
+                    app:strokeColor="@color/glass_border"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#ECFEFF"
                         android:gravity="center"
                         android:orientation="vertical">
 
@@ -311,14 +306,14 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@drawable/ic_child"
-                            app:tint="#0891B2" />
+                            app:tint="@color/crime_safe" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:text="@string/label_child_helpline"
-                            android:textColor="#0891B2"
+                            android:text="@string/label_child_help"
+                            android:textColor="@color/text_primary"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -333,15 +328,14 @@
                     android:layout_margin="8dp"
                     android:clickable="true"
                     android:focusable="true"
+                    app:cardBackgroundColor="@color/glass_white"
                     app:cardCornerRadius="24dp"
-                    app:cardElevation="2dp"
-                    app:strokeColor="#E2E8F0"
+                    app:strokeColor="@color/glass_border"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#F0FDFA"
                         android:gravity="center"
                         android:orientation="vertical">
 
@@ -349,14 +343,14 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@drawable/ic_anti_ragging"
-                            app:tint="#0D9488" />
+                            app:tint="#A78BFA" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:text="@string/label_ragging"
-                            android:textColor="#0D9488"
+                            android:text="@string/label_anti_ragging"
+                            android:textColor="@color/text_primary"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -364,13 +358,17 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSearchPolice"
-                style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:layout_marginTop="28dp"
-                android:text="@string/btn_find_police"
+                android:text="@string/btn_locate_police"
                 android:textSize="15sp"
+                android:textStyle="bold"
                 app:cornerRadius="20dp"
+                android:backgroundTint="@color/glass_white"
+                app:strokeColor="@color/glass_border"
+                app:strokeWidth="1dp"
+                android:textColor="@color/text_primary"
                 app:icon="@android:drawable/ic_menu_mapmode"
                 app:iconGravity="textStart"
                 app:iconPadding="12dp"
@@ -384,9 +382,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="?android:attr/colorBackground"
-        app:elevation="16dp"
-        app:labelVisibilityMode="labeled"
+        android:layout_margin="16dp"
+        android:background="@drawable/glass_card_bg"
+        app:itemIconTint="@color/text_primary"
+        app:itemTextColor="@color/text_primary"
+        app:labelVisibilityMode="unlabeled"
         app:menu="@menu/bottom_nav_menu" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

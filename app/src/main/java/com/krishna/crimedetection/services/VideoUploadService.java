@@ -246,7 +246,11 @@ public class VideoUploadService extends Service {
                 outputStream.flush();
             }
             return tempFile;
+        } catch (SecurityException e) {
+            Log.e(TAG, "Security error (permission denied) reading URI: " + uri, e);
+            return null;
         } catch (Exception e) {
+            Log.e(TAG, "Error reading URI: " + uri, e);
             return null;
         }
     }
@@ -307,5 +311,12 @@ public class VideoUploadService extends Service {
         if (currentCall != null) currentCall.cancel();
         executorService.shutdownNow();
         if (wakeLock.isHeld()) wakeLock.release();
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        // Ensure service stops when app is swiped away
+        stopSelf();
+        super.onTaskRemoved(rootIntent);
     }
 }

@@ -9,6 +9,7 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.krishna.crimedetection.R;
 import com.krishna.crimedetection.activities.AdminDashboardActivity;
 import com.krishna.crimedetection.activities.DashboardActivity;
 import com.krishna.crimedetection.activities.EmergencyActivity;
@@ -28,20 +30,22 @@ import com.krishna.crimedetection.databinding.ActivityProfileBinding;
 import com.krishna.crimedetection.utils.PreferenceUtils;
 import com.krishna.crimedetection.network.ApiService;
 import com.krishna.crimedetection.network.RetrofitClient;
+import com.krishna.crimedetection.network.models.MessageResponse;
 import com.krishna.crimedetection.network.models.ProfileResponse;
 import com.krishna.crimedetection.utils.TokenManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
     private ActivityProfileBinding binding;
     private FusedLocationProviderClient fusedLocationClient;
     private boolean isEditing = false;
-    private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     private TokenManager tokenManager;
     private ApiService apiService;
@@ -56,15 +60,12 @@ public class ProfileActivity extends AppCompatActivity {
         apiService = RetrofitClient.getApiService(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        setupImagePicker();
         setupUI();
         loadUserData();
         fetchProfileFromServer();
         getCurrentLocation();
         setupNavigation();
-        loadProfileImage();
 
-        binding.btnEditPhoto.setOnClickListener(v -> openImagePicker());
         binding.btnEdit.setOnClickListener(v -> toggleEditMode());
         binding.btnAdminDashboard.setOnClickListener(v -> startActivity(new Intent(this, AdminDashboardActivity.class)));
 
@@ -86,53 +87,42 @@ public class ProfileActivity extends AppCompatActivity {
             public void onResponse(@NonNull Call<ProfileResponse> call, @NonNull Response<ProfileResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ProfileResponse profile = response.body();
-                    binding.etName.setText(profile.getUsername());
-                    binding.tvProfileName.setText(profile.getUsername());
-                    binding.etEmail.setText(profile.getEmail());
-                    binding.etPhone.setText(profile.getPhoneNumber());
-                    binding.etEmergency.setText(profile.getEmergencyContact());
+                    Log.d("ProfileActivity", "Server profile fetched: " + profile.getUsername());
+                    
+                    // Get existing local data first
+                    String localName = PreferenceUtils.getUserName(ProfileActivity.this);
+                    String localEmail = PreferenceUtils.getUserEmail(ProfileActivity.this);
+                    String localPhone = PreferenceUtils.getUserPhone(ProfileActivity.this);
+                    String localEmergency = PreferenceUtils.getEmergencyNumber(ProfileActivity.this);
 
-                    // Sync local storage with server data
-                    PreferenceUtils.saveFullProfile(ProfileActivity.this,
-                            profile.getUsername(),
-                            profile.getEmail(),
-                            profile.getPhoneNumber(),
-                            profile.getEmergencyContact());
+                    // Only use server data if it's not null/empty, otherwise keep local
+                    String name = (profile.getUsername() != null && !profile.getUsername().trim().isEmpty()) ? profile.getUsername() : localName;
+                    String email = (profile.getEmail() != null && !profile.getEmail().trim().isEmpty()) ? profile.getEmail() : localEmail;
+                    String phone = (profile.getPhoneNumber() != null && !profile.getPhoneNumber().trim().isEmpty()) ? profile.getPhoneNumber() : localPhone;
+                    String emergency = (profile.getEmergencyContact() != null && !profile.getEmergencyContact().trim().isEmpty()) ? profile.getEmergencyContact() : localEmergency;
+
+                    // Update UI
+                    binding.etName.setText(name);
+                    binding.tvProfileName.setText(name.isEmpty() ? getString(R.string.label_user_placeholder) : name);
+                    binding.etEmail.setText(email);
+                    binding.etPhone.setText(phone);
+                    binding.etEmergency.setText(emergency);
+
+                    // Sync local storage with the merged data
+                    PreferenceUtils.saveFullProfile(ProfileActivity.this, name, email, phone, emergency);
+                } else {
+                    Log.w("ProfileActivity", "Server profile fetch failed, staying with local data");
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ProfileResponse> call, @NonNull Throwable t) {
-                Toast.makeText(ProfileActivity.this, "Failed to load profile from server", Toast.LENGTH_SHORT).show();
+                Log.e("ProfileActivity", "Failed to fetch profile from server, using local data", t);
+                Log.d("ProfileActivity", "Local profile data will be retained: " + 
+                      PreferenceUtils.getUserName(ProfileActivity.this) + " / " + 
+                      PreferenceUtils.getUserEmail(ProfileActivity.this));
             }
         });
-    }
-
-    private void loadProfileImage() {
-        String imageUri = PreferenceUtils.getProfileImageUri(this);
-        if (!imageUri.isEmpty()) {
-            binding.ivProfileLarge.setImageURI(Uri.parse(imageUri));
-        }
-    }
-
-    private void setupImagePicker() {
-        imagePickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        Uri imageUri = result.getData().getData();
-                        binding.ivProfileLarge.setImageURI(imageUri);
-                        if (imageUri != null) {
-                            PreferenceUtils.setProfileImageUri(this, imageUri.toString());
-                        }
-                    }
-                }
-        );
-    }
-
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        imagePickerLauncher.launch(intent);
     }
 
     private void setupUI() {
@@ -169,7 +159,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void loadUserData() {
         String name = PreferenceUtils.getUserName(this);
         binding.etName.setText(name);
-        binding.tvProfileName.setText(name.isEmpty() ? "User" : name);
+        binding.tvProfileName.setText(name.isEmpty() ? getString(R.string.label_user_placeholder) : name);
         binding.etEmail.setText(PreferenceUtils.getUserEmail(this));
         binding.etPhone.setText(PreferenceUtils.getUserPhone(this));
         binding.etEmergency.setText(PreferenceUtils.getEmergencyNumber(this));
@@ -193,14 +183,39 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void saveProfile() {
-        String name = binding.etName.getText().toString();
-        String email = binding.etEmail.getText().toString();
-        String phone = binding.etPhone.getText().toString();
-        String emergency = binding.etEmergency.getText().toString();
+        String name = binding.etName.getText().toString().trim();
+        String email = binding.etEmail.getText().toString().trim();
+        String phone = binding.etPhone.getText().toString().trim();
+        String emergency = binding.etEmergency.getText().toString().trim();
 
+        // Update locally first for immediate feedback
         PreferenceUtils.saveFullProfile(this, name, email, phone, emergency);
         binding.tvProfileName.setText(name);
-        Toast.makeText(this, "Profile Updated", Toast.LENGTH_SHORT).show();
+
+        // Update on backend
+        Map<String, String> profileData = new HashMap<>();
+        profileData.put("username", name);
+        profileData.put("email", email);
+        profileData.put("phone_number", phone);
+        profileData.put("emergency_contact", emergency);
+
+        apiService.updateProfile(profileData).enqueue(new Callback<MessageResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<MessageResponse> call, @NonNull Response<MessageResponse> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(ProfileActivity.this, getString(R.string.msg_profile_synced), Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e("ProfileActivity", "Failed to sync profile: " + response.code());
+                    Toast.makeText(ProfileActivity.this, getString(R.string.msg_profile_local_only), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<MessageResponse> call, @NonNull Throwable t) {
+                Log.e("ProfileActivity", "Error syncing profile", t);
+                Toast.makeText(ProfileActivity.this, getString(R.string.msg_profile_local_only), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void getCurrentLocation() {

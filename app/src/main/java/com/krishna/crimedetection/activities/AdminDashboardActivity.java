@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.krishna.crimedetection.R;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -57,15 +58,15 @@ public class AdminDashboardActivity extends AppCompatActivity {
         binding.fabRefresh.setOnClickListener(v -> fetchDashboardData());
         binding.btnReviewIncidents.setOnClickListener(v -> {
             // startActivity(new Intent(this, IncidentReviewActivity.class));
-            Toast.makeText(this, "Review activity coming soon", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.msg_feature_coming_soon, "Review activity"), Toast.LENGTH_SHORT).show();
         });
         binding.btnManageUsers.setOnClickListener(v -> {
             // startActivity(new Intent(this, UserManagementActivity.class));
-            Toast.makeText(this, "User management coming soon", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.msg_feature_coming_soon, "User management"), Toast.LENGTH_SHORT).show();
         });
         binding.btnViewReports.setOnClickListener(v -> {
             // startActivity(new Intent(this, ReportsActivity.class));
-            Toast.makeText(this, "Reports activity coming soon", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.msg_feature_coming_soon, "Reports activity"), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -76,14 +77,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     updateUI(response.body());
                 } else {
-                    Toast.makeText(AdminDashboardActivity.this, "Failed to load dashboard data", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AdminDashboardActivity.this, R.string.error_dashboard_load_failed, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<AdminDashboardResponse> call, Throwable t) {
                 Log.e("AdminDashboard", "Error fetching data", t);
-                Toast.makeText(AdminDashboardActivity.this, "Network error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AdminDashboardActivity.this, R.string.msg_network_error, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -106,7 +107,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
             entries.add(new Entry(i, trends.get(i).getValue()));
         }
 
-        LineDataSet dataSet = new LineDataSet(entries, "Detections");
+        LineDataSet dataSet = new LineDataSet(entries, getString(R.string.label_chart_detections));
         dataSet.setColor(Color.RED);
         dataSet.setCircleColor(Color.RED);
         dataSet.setLineWidth(2f);
@@ -147,8 +148,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             AdminDashboardResponse.UserActivity item = list.get(position);
-            holder.text1.setText(item.getUserName() + ": " + item.getAction());
-            holder.text2.setText("ID: " + item.getIncidentId());
+            holder.text1.setText(holder.itemView.getContext().getString(R.string.label_user_action_format, item.getUserName(), item.getAction()));
+            holder.text2.setText(holder.itemView.getContext().getString(R.string.label_incident_id_format, item.getIncidentId()));
         }
 
         @Override

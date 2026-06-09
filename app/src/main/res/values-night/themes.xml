@@ -18,7 +18,7 @@
         <item name="colorOnTertiary">@color/colorOnTertiary</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
         <item name="android:windowLightStatusBar">false</item>
 
         <!-- Custom background and surface colors -->

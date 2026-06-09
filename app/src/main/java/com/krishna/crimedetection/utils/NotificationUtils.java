@@ -3,12 +3,17 @@ package com.krishna.crimedetection.utils;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.core.app.NotificationCompat;
 
@@ -52,6 +57,23 @@ public final class NotificationUtils {
     }
 
     public static void showNotification(Context c, String title, String text) {
+        showNotification(c, title, text, null);
+    }
+
+    public static void showNotification(Context c, String title, String text, Intent intent) {
+        showNotification(c, title, text, intent, 0);
+    }
+
+    public static void showNotification(Context c, String title, String text, Intent intent, int delayMs) {
+        if (delayMs > 0) {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> 
+                executeShowNotification(c, title, text, intent), delayMs);
+        } else {
+            executeShowNotification(c, title, text, intent);
+        }
+    }
+
+    private static void executeShowNotification(Context c, String title, String text, Intent intent) {
         ensureChannels(c);
 
         Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -63,6 +85,12 @@ public final class NotificationUtils {
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setSound(sound)
                 .setAutoCancel(true);
+
+        if (intent != null) {
+            PendingIntent pendingIntent = PendingIntent.getActivity(c, 0, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            b.setContentIntent(pendingIntent);
+        }
 
         vibrate(c);
 
